@@ -1,0 +1,35 @@
+{
+  "extends": ["eslint:recommended", "google", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "plugins": ["html", "prettier"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "trailingComma": "none",
+        "bracketSpacing": false,
+        "jsxBracketSameLine": false
+      }
+    ],
+    "brace-style": "off",
+    "new-cap": ["error", {"capIsNewExceptions": ["Polymer", "PolymerVis"]}],
+    "no-var": "off",
+    "require-jsdoc": "off",
+    "comma-dangle": ["error", "never"],
+    "arrow-parens": ["error", "as-needed"],
+    "no-console": ["error", {"allow": ["warn", "error"]}]
+  },
+  "globals": {
+    "Polymer": true,
+    "PolymerVis": true,
+    "monaco": true,
+    "require": true
+  }
+}

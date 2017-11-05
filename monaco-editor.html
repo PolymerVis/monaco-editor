@@ -1,0 +1,578 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/utils/debounce.html">
+<link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html">
+
+<script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+
+<dom-module id="monaco-editor">
+<template>
+  <style>
+    :host {
+      display: block;
+      width: 320px;
+      height: 200px;
+    }
+    #hidden {
+      display: none;
+    }
+  </style>
+  <div id="hidden">
+    <slot id="codes" name="monaco-value"></slot>
+  </div>
+  <slot></slot>
+</template>
+
+<script>
+/**
+ * # `monaco-editor`
+ * `monaco-editor` is a Polymer 2.0 element for [Monaco Editor](https://microsoft.github.io/monaco-editor/), a browser-based code editor which also powers Visual Studio Code.
+ *  ## Installation
+ *  ```
+ *  bower install --save PolymerVis/monaco-editor
+ *  ```
+ *
+ *  ## Documentation and demos
+ *  More examples and documentation can be found at `monaco-editor` [webcomponents page](https://www.webcomponents.org/element/PolymerVis/monaco-editor).
+ *
+ *  The demos can be found at the [`monaco-editor` Github page](https://PolymerVis.github.io/monaco-editor/build/demo).
+ *
+ * ## Special notes on styling and demo
+ * The layout of the hints are out for the demo because of the way the original monaco editor is styled and the way webcomponents.org renders the demo. It is very difficult for me to isolate the conflicts.
+ *
+ *  ## Disclaimers
+ *  PolymerVis is a personal project and is NOT in any way affliated with Microsoft, Polymer or Google.
+ *
+ *  ## Quick start
+ *  ```html
+ *  <!-- enable code folding, minimap, and dark theme -->
+ *  <monaco-editor
+ *    folding
+ *    minimap
+ *    theme="vs-dark"
+ *    language="javascript"></monaco-editor>
+ *  ```
+ *  Please look at the documentation for all the available options.
+ *
+ *  ## Pre-populated with codes
+ *  1. Populate with the `value` property.
+ *  ```js
+ *  var codes = `// this is a comment line
+ *  var helloworld = "hello world";
+ *  `;
+ *  ```
+ *  ```html
+ *  <!-- 2-way binding is available for `value` -->
+ *  <monaco-editor
+ *    language="javascript"
+ *    value="{{codes}}"></monaco-editor>
+ *  ```
+ *
+ *  2. Populate with a `monaco-value` `slot` element.
+ *  *Note that the `text` in the `slot` element is only loaded once during initialization. Subsequent changes to the slot will not change the `value`.*
+ *  ```html
+ *  <!-- text is only loaded once, and not updated upon subsequent changes -->
+ *  <monaco-editor
+ *    language="javascript"
+ *    value="{{codes}}">
+ *    <div slot="monaco-value">// comment line
+ *  var helloworld = "hello world";</div>
+ *  </monaco-editor>
+ *  ```
+ *
+ * ## Schemas for `monaco-editor`
+ * You can either define your `schemas` for `monaco-editor` to do hints and validation, or you can use the `monaco-schemas`.
+ *
+ * ```html
+ * <!-- extract `schemas` by definiting a space-separated string, `keys`. -->
+ * <monaco-schemas keys="vega-lite" schemas="{{schemas}}"></monaco-schemas>
+ *
+ * <!-- pass the `schemas` array to `json-schemas` and set `json-validate` flag
+ *   to enable hints, suggestions, and validation of the inputs. -->
+ * <monaco-editor json-validate language="json"
+ *    json-schemas="[[schemas]]"></monaco-editor>
+ *```
+ *
+ * @customElement
+ * @polymer
+ * @demo demo/index.html monaco-editor demo
+ * @demo demo/vega-editor.html Vega-Lite editor
+ */
+class MonacoEditor extends Polymer.Element {
+  static get is() {
+    return 'monaco-editor';
+  }
+  static get properties() {
+    return {
+      /**
+       * Allows code folding.
+       * @type {Boolean}
+       */
+      folding: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Control the wrapping of the editor. When wordWrap = "off", the lines
+       * will never wrap. When wordWrap = "on", the lines will wrap at the
+       * viewport width. When wordWrap = "wordWrapColumn", the lines will wrap
+       * at wordWrapColumn. When wordWrap = "bounded", the lines will wrap at
+       * min(viewport width, wordWrapColumn).
+       * @type {String}
+       */
+      wordWrap: {
+        type: String,
+        value: 'off'
+      },
+      /**
+       * When `wordWrap` = "wordWrapColumn", the lines will wrap at `wordWrapColumn`.
+       * @type {Number}
+       */
+      wordWrapColumn: {
+        type: Number,
+        value: 80
+      },
+      /**
+       * Control indentation of wrapped lines. Can be: `none`, `same` or `indent`.
+       * @type {String}
+       */
+      wrappingIndent: {
+        type: String,
+        value: 'same'
+      },
+      /**
+       * Enable rendering of current line highlight. `none`, `gutter`, `line`, or `all`.
+       * @type {String}
+       */
+      renderLineHighlight: {
+        type: String,
+        value: 'gutter'
+      },
+      /**
+       * Enable minimap.
+       * @type {Boolean}
+       */
+      minimap: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Set to make the codes read only.
+       * @type {Boolean}
+       */
+      readOnly: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * The aria label for the editor's textarea (when it is focused).
+       * @type {String}
+       */
+      ariaLabel: {
+        type: String,
+        value: 'textarea'
+      },
+      /**
+       * Enable auto indentation adjustment.
+       * @type {Boolean}
+       */
+      autoIndent: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Language model for the editor.
+       * @type {String}
+       */
+      language: {
+        type: String,
+        value: 'javascript'
+      },
+      /**
+       * Initial code pre-populated in the editor.
+       * @type {String}
+       */
+      value: {
+        type: String,
+        notify: true,
+        observer: '_valueChanged'
+      },
+      /**
+       * Theme to use for the editor. The out-of-the-box options are `vs`,
+       * `vs-dark`, or `hc-black`.
+       * @type {String}
+       */
+      theme: {
+        type: String,
+        value: 'vs'
+      },
+      /**
+       * The font family to use for the editor.
+       * @type {String}
+       */
+      fontFamily: {
+        type: String,
+        value: 'monospace'
+      },
+      /**
+       * The font size to use for the editor.
+       * @type {Number}
+       */
+      fontSize: {
+        type: Number,
+        value: 14
+      },
+      /**
+       * The font height to use for the editor.
+       * @type {Number}
+       */
+      lineHeight: {
+        type: Number,
+        value: 20
+      },
+      /**
+       * Control the rendering of line numbers. `on`, `off`, or `relative`.
+       * @type {String}
+       */
+      lineNumbers: {
+        type: String,
+        value: 'on'
+      },
+      /**
+       * The font weight to use for the editor.
+       * @type {String}
+       */
+      fontWeight: {
+        type: String,
+        value: 'normal'
+      },
+      /**
+       * Enables parameter hints.
+       * @type {Boolean}
+       */
+      parameterHints: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Enable snippet suggestions. `top`, `bottom`, `inline`, or `none`.
+       * @type {String}
+       */
+      snippetSuggestions: {
+        type: String,
+        value: 'bottom'
+      },
+      /**
+       * Configurations for the editor. For a full list of parameters, visit
+       * [here](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ieditorconstructionoptions.html).
+       * @type {Object}
+       */
+      options: {
+        type: Object,
+        value: function() {
+          return {
+            acceptSuggestionOnCommitCharacter: true,
+            acceptSuggestionOnEnter: 'on',
+            accessibilityHelpUrl:
+              'https://go.microsoft.com/fwlink/?linkid=852450',
+            accessibilitySupport: 'auto',
+            autoClosingBrackets: true,
+            automaticLayout: false,
+            codeLens: true,
+            contextmenu: true,
+            cursorBlinking: 'blink',
+            cursorStyle: 'line',
+            disableLayerHinting: false,
+            disableMonospaceOptimizations: false,
+            dragAndDrop: false,
+            emptySelectionClipboard: false,
+            fixedOverflowWidgets: false,
+            fontLigatures: false,
+            formatOnPaste: false,
+            formatOnType: false,
+            glyphMargin: true,
+            hideCursorInOverviewRuler: false,
+            hover: true,
+            iconsInSuggestions: true,
+            lineDecorationsWidth: 10,
+            lineNumbersMinChars: 5,
+            links: true,
+            matchBrackets: true,
+            mouseWheelScrollSensitivity: 1,
+            mouseWheelZoom: false,
+            multiCursorModifier: 'alt',
+            occurrencesHighlight: true,
+            overviewRulerBorder: true,
+            overviewRulerLanes: 2,
+            quickSuggestions: true,
+            quickSuggestionsDelay: 500,
+            renderControlCharacters: false,
+            renderIndentGuides: false,
+            renderLineHighlight: 'all',
+            renderWhitespace: 'none',
+            revealHorizontalRightPadding: 30,
+            roundedSelection: true,
+            rulers: [],
+            scrollBeyondLastLine: true,
+            selectOnLineNumbers: true,
+            selectionClipboard: true,
+            selectionHighlight: true,
+            showFoldingControls: 'mouseover',
+            stopRenderingLineAfter: 10000,
+            suggestOnTriggerCharacters: true,
+            wordBasedSuggestions: true
+          };
+        }
+      },
+      /**
+       * A list of known schemas and/or associations of schemas to file names.
+       * (For `language`='json' only).
+       * @type {Object[]}
+       */
+      jsonSchemas: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      /**
+       * If set, comments are tolerated. If set to false, syntax errors will
+       * be emmited for comments.
+       * (For `language`='json' only).
+       * @type {Boolean}
+       */
+      jsonAllowComments: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * If set, the validator will be enabled and perform syntax validation
+       * as well as schema based validation.
+       * (For `language`='json' only).
+       * @type {Boolean}
+       */
+      jsonValidate: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * monaca.editor instance. For a full list for the APIs, visit
+       * their [documentation](https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html).
+       * @type {monaco.editor}
+       */
+      editor: {
+        type: Object,
+        readOnly: true,
+        notify: true
+      },
+      /**
+       * Monaca namespace. For a full list for the APIs, visit
+       * their [documentation](https://microsoft.github.io/monaco-editor/api/index.html).
+       * @type {monaco}
+       */
+      monaco: {
+        type: Object,
+        readOnly: true,
+        notify: true
+      },
+      /**
+       * Base dir where the monaco libraries are located. Defaults to `./node_modules/monaco-editor/min/vs`.
+       * @type {monaco}
+       */
+      libPath: {
+        type: String,
+        value: function() {
+          return this.resolveUrl('./node_modules/monaco-editor/min/vs');
+        }
+      },
+      /** @type {Boolean} */
+      _incomingValue: {
+        type: Boolean
+      },
+      /** @type {Boolean} */
+      _syncValue: {
+        type: Boolean
+      },
+      /** @type {Polymer.FlattenedNodesObserver} */
+      _observer: {
+        type: Object
+      },
+      _syncSchemaListener: {
+        type: Function
+      },
+      _disposables: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      }
+    };
+  }
+
+  static get observers() {
+    return [
+      '_init(monaco)',
+      'setTheme(theme,monaco)',
+      'setModelLanguage(language,monaco)',
+      '_updateDiagnosticsOptions(monaco,language,jsonValidate,jsonAllowComments,jsonSchemas)',
+      '_optionsChanged(editor,options,readOnly,autoIndent,minimap,renderLineHighlight,wordWrap,wordWrapColumn,wrappingIndent,fontFamily,fontSize,fontWeight,lineHeight,parameterHints,lineNumbers,snippetSuggestions,folding)'
+    ];
+  }
+
+  ready() {
+    super.ready();
+    require.config({
+      paths: {vs: this.libPath }
+    });
+    require(['vs/editor/editor.main'], () => {
+      this._setMonaco(monaco);
+    });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    var text = this.$.codes
+      .assignedNodes()
+      .map(e => e.textContent)
+      .join('\n');
+    if (text.length > 0) this.set('value', text);
+    this._syncSchemaListener = this._syncSchema.bind(this);
+    this.addEventListener('mouseenter', this._syncSchemaListener);
+    this._init();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.editor) {
+      this.editor.dispose();
+      this._setEditor(null);
+    }
+    if (Array.isArray(this._disposables)) {
+      this._disposables.forEach(d => d.dispose());
+      this._disposables = [];
+    }
+    if (this._syncSchemaListener) {
+      this.removeEventListener(this._syncSchemaListener);
+    }
+  }
+
+  /**
+   * Switches to a theme.
+   * @param {String} theme Out-of-the-box themes are `vs`, `vs-dark`, or `hc-black`.
+   * @return {MonacoEditor}
+   */
+  setTheme(theme) {
+    if (this.monaco && theme) {
+      this.monaco.editor.setTheme(theme);
+    }
+    return this;
+  }
+  /**
+   * Change the language for a model.
+   * @param {String} language
+   * @return {MonacoEditor}
+   */
+  setModelLanguage(language) {
+    if (this.monaco && this.editor && language) {
+      this.monaco.editor.setModelLanguage(this.editor.getModel(), language);
+    }
+    return this;
+  }
+
+  _valueChanged(value) {
+    if (this._syncValue) {
+      return this.set('_syncValue', false);
+    }
+    this.set('_incomingValue', true);
+    this.editor && this.editor.getModel().setValue(value);
+    this.dispatchEvent(new CustomEvent('value-changed', {detail: {value}}));
+  }
+
+  _getOptions(opt = {}) {
+    return Object.assign(
+      {},
+      {
+        folding: this.folding,
+        snippetSuggestions: this.snippetSuggestions,
+        fontSize: this.fontSize,
+        fontFamily: this.fontFamily,
+        fontWeight: this.fontWeight,
+        lineHeight: this.lineHeight,
+        lineNumbers: this.lineNumbers,
+        parameterHints: this.parameterHints,
+        ariaLabel: this.ariaLabel,
+        wordWrap: this.wordWrap,
+        wordWrapColumn: this.wordWrapColumn,
+        wrappingIndent: this.wrappingIndent,
+        renderLineHighlight: this.renderLineHighlight,
+        minimap: {enabled: this.minimap},
+        readOnly: this.readOnly,
+        autoIndent: this.autoIndent
+      },
+      this.options,
+      opt
+    );
+  }
+
+  _optionsChanged() {
+    this.editor && this.editor.updateOptions(this._getOptions());
+  }
+
+  _updateDiagnosticsOptions() {
+    if (!this.monaco) return;
+    if (this.language === 'json') {
+      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+        validate: this.jsonValidate,
+        allowComments: this.jsonAllowComments,
+        schemas: this.jsonSchemas
+      });
+    }
+  }
+
+  _arrayEqual(a1, a2) {
+    if (!a1 || !a2 || a1.length != a2.length) return false;
+    return a1.every((o, i) => o === a2[i]);
+  }
+
+  _syncSchema() {
+    if (!this.monaco || !this.jsonSchemas) return;
+    // update schema for this editor instance
+    if (
+      !this._arrayEqual(
+        this.monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas,
+        this.jsonSchemas
+      )
+    ) {
+      this._updateDiagnosticsOptions();
+    }
+  }
+
+  _init() {
+    if (!this.monaco || this.editor) return;
+    var opts = {
+      value: this.value,
+      language: this.language
+    };
+    var editor = this.monaco.editor.create(this, this._getOptions(opts));
+
+    var disposable = editor.onDidFocusEditor(() => {
+      this._syncSchema();
+    });
+    this._disposables.push(disposable);
+
+    var model = editor.getModel();
+    model.onDidChangeContent(() => {
+      if (!this._incomingValue) {
+        this.set('_syncValue', true);
+        this.set('value', model.getValue());
+      } else {
+        this.set('_incomingValue', false);
+      }
+    });
+    this._setEditor(editor);
+    this.dispatchEvent(new CustomEvent('monaco-ready'));
+  }
+}
+
+window.customElements.define(MonacoEditor.is, MonacoEditor);
+</script>
+</dom-module>
