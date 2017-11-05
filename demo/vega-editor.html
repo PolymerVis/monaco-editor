@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+<title>monaco-editor demo</title>
+
+<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+<link rel="import" href="../../polymer/lib/elements/dom-bind.html">
+<link rel="import" href="../../polymer/lib/utils/import-href.html">
+<link rel="import" href="../../polymer/lib/elements/custom-style.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../../vega-element/vega.html">
+<link rel="import" href="../../vega-element/vega-lite.html">
+<link rel="import" href="../../vega-element/vega-tooltip.html">
+<link rel="import" href="../../vega-element/vega-element.html">
+
+<link rel="import" href="../monaco-editor.html">
+<link rel="import" href="../monaco-schemas.html">
+
+<custom-style>
+  <style is="custom-style" include="iron-flex iron-flex-alignment">
+    body {
+      padding: 5px;
+      margin: 0px;
+      font-family: verdana;
+    }
+
+    monaco-editor {
+      height: 90vh;
+      width: 100%;
+      min-width: 520px;
+      min-height: 400px;
+    }
+
+    .error {
+      font-size: 0.7em;
+      color: #E91E63;
+    }
+
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      margin: 3px;
+      padding: 5px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+    }
+    button.off {
+      background-color: #888;
+    }
+
+  </style>
+</custom-style>
+</head>
+
+<body>
+
+<dom-bind id="demo">
+  <template>
+    <monaco-schemas keys="[[mode]]" schemas="{{schemas}}"></monaco-schemas>
+    <section class="layout horizontal">
+      <div class="flex">
+        <h2>Monaco Editor for Vega-Lite</h2>
+        <button id="readOnly"
+          class="off"
+          onclick="javascript:toggle('readOnly')">Read only</button>
+        <button id="minimap"
+          class="off"
+          onclick="javascript:toggle('minimap')">Show minimap</button>
+        <button id="autoparse"
+          onclick="javascript:parse(true)">Auto parse</button>
+        <div class='error'>[[error]]</div>
+        <monaco-editor id="editor"
+          json-validate
+          folding
+          language="json"
+          read-only="[[readOnly]]"
+          minimap="[[minimap]]"
+          value="[[value]]"
+          json-schemas="[[schemas]]"
+          on-value-changed="onValueChanged"></monaco-editor>
+      </div>
+      <div class="layout vertical center center-justified flex">
+        <vega-element id="chart"
+          hover tooltip
+          enderer="svg"
+          log-level="info"></vega-element>
+      </div>
+    </section>
+  </template>
+</dom-bind>
+
+<script>
+var demo = document.querySelector('dom-bind#demo');
+demo.mode = 'vega-lite';
+demo.error = '';
+demo.autoParse = true;
+demo.onValueChanged = function(e, {value}) {
+  demo.autoParse && parse();
+}
+
+demo.value = `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  "description": "A simple bar chart with embedded data.",
+  "data": {
+    "values": [
+      {"a": "A","b": 28}, {"a": "B","b": 55}, {"a": "C","b": 43},
+      {"a": "D","b": 91}, {"a": "E","b": 81}, {"a": "F","b": 53},
+      {"a": "G","b": 19}, {"a": "H","b": 87}, {"a": "I","b": 52}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "a", "type": "ordinal"},
+    "y": {"field": "b", "type": "quantitative"}
+  }
+}`;
+
+function toggle(key) {
+  demo[key] = !demo[key];
+  document.querySelector(`#${key}`).classList.toggle('off', !demo[key]);
+}
+
+function parse(toggle) {
+  if (toggle) {
+    demo.autoParse = !demo.autoParse;
+    document.querySelector('#autoparse').classList.toggle('off', !demo.autoParse);
+  }
+  try {
+    demo.error = '';
+    demo.$.chart.set('vegaLiteSpec', JSON.parse(demo.$.editor.value));
+  } catch (err) {
+    // ignore invalid JSON
+    demo.error = err;
+  }
+}
+
+
+
+</script>
+
+</body>
+</html>

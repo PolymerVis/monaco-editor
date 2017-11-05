@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+<title>monaco-editor demo</title>
+
+<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+<link rel="import" href="../../polymer/lib/elements/dom-bind.html">
+<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+<link rel="import" href="../monaco-editor.html">
+
+<custom-style>
+  <style is="custom-style" include="demo-pages-shared-styles">
+    button {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      margin: 3px;
+      padding: 5px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .3s;
+    }
+    button:focus {
+      outline: none;
+      color: #fff;
+      background-color: #1976D2;
+    }
+    button:hover {
+      color: #fff;
+      background-color: #1565C0;
+    }
+    button.off {
+      background-color: #1565C0;
+    }
+    monaco-editor {
+      width: 520px;
+    }
+  </style>
+</custom-style>
+</head>
+
+<body>
+<div class="vertical-section-container centered">
+<h3>Basic monaco-editor demo</h3>
+
+<demo-snippet>
+<template>
+  <monaco-editor
+    read-only
+    minimap
+    language="javascript">
+    <div slot="monaco-value">// codes here are only read during
+// initialization.
+// there are no data-binding between
+// monaco-editor and the slot.
+var msg = 'hello world!';</div>
+  </monaco-editor>
+</template>
+</demo-snippet>
+
+
+<demo-snippet>
+<template>
+  <h3>Click on the button to change the value inside the editor</h3>
+
+  <button onclick="javascript:setValue(this)">console.log("hello world")</button>
+  <button onclick="javascript:setValue(this)">console.log("hello world again")</button>
+
+  <monaco-editor
+    id="editor"
+    language="javascript"
+    value="var msg = 'hello world!';">
+  </monaco-editor>
+
+  <script>
+    function setValue(ele) {
+      document.querySelector('#editor').value = ele.textContent;
+    }
+  </script>
+</template>
+</demo-snippet>
+
+</div>
+</body>
+</html>

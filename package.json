@@ -1,0 +1,41 @@
+{
+  "name": "monaco-editor-polymer",
+  "version": "2.0.0",
+  "description": "A Polymer 2.0 element for Monaco Editor, a browser-based code editor.",
+  "main": "monaco-elements.html",
+  "scripts": {
+    "lint": "npx eslint *.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "./*.{js,json,html}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "keywords": [
+    "polymer",
+    "web-components",
+    "monaco editor",
+    "code editor",
+    "code mirror",
+    "ide"
+  ],
+  "author": "eterna2 <eterna2@hotmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "monaco-editor": "^0.10.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.6.1",
+    "eslint-config-google": "^0.7.0",
+    "eslint-config-prettier": "^2.5.0",
+    "eslint-plugin-html": "^3.2.2",
+    "eslint-plugin-prettier": "^2.3.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^4.2.1",
+    "polymer-cli": "^1.5.4",
+    "prettier": "^1.7.0"
+  }
+}
