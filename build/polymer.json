@@ -1,0 +1,46 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/monaco-editor-demo/monaco-editor-demo.html",
+  "fragments": [
+    "src/demo/index.html",
+    "src/demo/monaco-schemas.html",
+    "src/demo/vega-editor.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "index.html",
+    "src/monaco-editor-demo/monaco-editor-demo.html",
+    "src/demo/index.html",
+    "src/demo/monaco-schemas.html",
+    "src/demo/vega-editor.html"
+  ],
+  "extraDependencies": [
+    "bower_components/webcomponentsjs/*.js",
+    "manifest.json",
+    "bower_components/webcomponentsjs/*.js"
+  ],
+  "builds": [
+    {
+      "name": "demo",
+      "js": {
+        "minify": true,
+        "compile": true
+      },
+      "css": {
+        "minify": true
+      },
+      "html": {
+        "minify": true
+      },
+      "bundle": true,
+      "addServiceWorker": true,
+      "addPushManifest": true,
+      "preset": "es5-bundled"
+    }
+  ],
+  "lint": {
+    "rules": [
+      "polymer-2"
+    ]
+  }
+}
