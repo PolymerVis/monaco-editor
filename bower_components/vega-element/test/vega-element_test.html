@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8">
+
+  <meta name="viewport"
+    content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>vega-element test</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js" />
+
+  <script src="../../web-component-tester/browser.js" />
+
+  <link rel="import"
+    href="../vega-element.html">
+
+</head>
+
+<body>
+
+  <test-fixture id="BasicTestFixture">
+
+    <template>
+
+      <vega-element />
+
+    </template>
+  </test-fixture>
+
+  <test-fixture id="ChangedPropertyTestFixture">
+
+    <template>
+
+      <vega-element prop1="new-prop1" />
+
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('vega-element', function() {
+      test('instantiating the element with default properties works', function() {
+        var element = fixture('BasicTestFixture');
+        assert.equal(element.prop1, 'vega-element');
+        var elementShadowRoot = element.shadowRoot;
+        var elementHeader = elementShadowRoot.querySelector('h2');
+        assert.equal(elementHeader.innerHTML, 'Hello vega-element!');
+      });
+
+      test('setting a property on the element works', function() {
+        // Create a test fixture
+        var element = fixture('ChangedPropertyTestFixture');
+        assert.equal(element.prop1, 'new-prop1');
+        var elementShadowRoot = element.shadowRoot;
+        var elementHeader = elementShadowRoot.querySelector('h2');
+        assert.equal(elementHeader.innerHTML, 'Hello new-prop1!');
+      });
+    });
+
+  </script>
+</body>
+</html>

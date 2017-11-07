@@ -1,0 +1,12 @@
+{
+  "name": "polymer-vis",
+  "description":
+    "Global namespace with some utilities functions for PolymerVis.",
+  "main": "polymer-vis.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0"
+  },
+  "resolutions": {
+    "polymer": "^2.0.0"
+  }
+}

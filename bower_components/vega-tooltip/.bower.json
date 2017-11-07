@@ -1,0 +1,36 @@
+{
+  "name": "vega-tooltip",
+  "version": "0.3.3",
+  "description": "A tooltip plugin for vega-lite and vega visualizations.",
+  "main": [
+    "src/vg-tooltip.js",
+    "src/vg-tooltip.css"
+  ],
+  "dependencies": {
+    "datalib": "^1.6.3"
+  },
+  "authors": [
+    "Zening Qu"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "vega-lite",
+    "vega",
+    "tooltip"
+  ],
+  "homepage": "https://github.com/vega/vega-tooltip",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "_release": "0.3.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.3",
+    "commit": "f6da5ef37d25cb8c4ec346e944c1e377be50c350"
+  },
+  "_source": "https://github.com/vega/vega-tooltip.git",
+  "_target": "^0.3.0",
+  "_originalSource": "vega/vega-tooltip"
+}

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+<title>monaco-schemas demo</title>
+
+<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+<link rel="import" href="../../polymer/lib/elements/dom-bind.html">
+<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+<link rel="import" href="../monaco-editor.html">
+<link rel="import" href="../monaco-schemas.html">
+
+<custom-style>
+  <style is="custom-style" include="demo-pages-shared-styles">
+    monaco-editor {
+      width: 520px;
+      height: 300px;
+    }
+  </style>
+</custom-style>
+</head>
+
+<body>
+<div class="vertical-section-container centered">
+<h2>monaco-schemas</h2>
+
+<b>1. Load default "vega-lite" schema into monaco-editor.</b>
+<demo-snippet>
+<template>
+<dom-bind id="demo">
+  <template>
+    <p>Hover over a variable to show hints on the schema.</p>
+
+    <monaco-schemas keys="vega-lite" schemas="{{schemas}}"></monaco-schemas>
+
+    <monaco-editor
+      read-only
+      minimap
+      json-validate
+      language="json"
+      json-schemas="[[schemas]]">
+      <div slot="monaco-value">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  "description": "A simple bar chart with embedded data.",
+  "data": {
+    "values": [
+      {"a": "A","b": 28}, {"a": "B","b": 55}, {"a": "C","b": 43},
+      {"a": "D","b": 91}, {"a": "E","b": 81}, {"a": "F","b": 53},
+      {"a": "G","b": 19}, {"a": "H","b": 87}, {"a": "I","b": 52}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "a", "type": "ordinal"},
+    "y": {"field": "b", "type": "quantitative"}
+  }
+}</div>
+    </monaco-editor>
+
+  </template>
+</dom-bind>
+
+</template>
+</demo-snippet>
+
+<b>2. Load custom schema with only "uri" provided.</b>
+<demo-snippet>
+<template>
+<dom-bind id="demo2">
+  <template>
+    <p>Hover over a variable to show hints on the schema.</p>
+
+    <monaco-schemas
+      keys="vega-lite-uri"
+      schemas="{{schemas}}"
+      data="[[data]]"></monaco-schemas>
+
+    <monaco-editor
+      minimap
+      json-validate
+      language="json"
+      json-schemas="[[schemas]]">
+      <div slot="monaco-value">{
+  "description": "A simple bar chart with embedded data.",
+  "data": {
+    "values": [
+      {"a": "A","b": 28}, {"a": "B","b": 55}, {"a": "C","b": 43},
+      {"a": "D","b": 91}, {"a": "E","b": 81}, {"a": "F","b": 53},
+      {"a": "G","b": 19}, {"a": "H","b": 87}, {"a": "I","b": 52}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "a", "type": "ordinal"},
+    "y": {"field": "b", "type": "quantitative"}
+  }
+}</div>
+    </monaco-editor>
+
+  </template>
+</dom-bind>
+
+<script>
+var demo2 = document.querySelector('dom-bind#demo2');
+demo2.data = {
+  'vega-lite-uri': {
+    uri: 'https://vega.github.io/schema/vega-lite/v2.json',
+    fileMatch: ['*']
+  }
+};
+</script>
+</template>
+</demo-snippet>
+
+<b>3. Define and load custom schema directly.</b>
+<demo-snippet>
+<template>
+<dom-bind id="demo3">
+  <template>
+    <p>Press spacebar after "age:" to see the auto-suggestion from the custom schema.</p>
+
+    <monaco-schemas
+      keys="cat"
+      schemas="{{schemas}}"
+      data="[[data]]"></monaco-schemas>
+
+    <monaco-editor
+      minimap
+      json-validate
+      language="json"
+      json-schemas="[[schemas]]">
+      <div slot="monaco-value">{
+  "name":"Kopi",
+  "breed":"domestic",
+  "age":
+}</div>
+    </monaco-editor>
+
+  </template>
+</dom-bind>
+
+<script>
+var demo3 = document.querySelector('dom-bind#demo3');
+demo3.data = {
+  cat: {
+    schema: {
+      title: 'Cat',
+      type: 'object',
+      properties: {
+        name: {
+          description: 'Name of the cat',
+          type: 'string'
+        },
+        breed: {
+          description: 'Breed of the cat',
+          type: 'string'
+        },
+        age: {
+          description: 'Age of the cat',
+          type: 'string',
+          enum: ['kitten', 'young adult', 'adult', 'old cat']
+        }
+      }
+    },
+    fileMatch: ['*']
+  }
+};
+</script>
+</template>
+</demo-snippet>
+
+</div>
+</body>
+</html>

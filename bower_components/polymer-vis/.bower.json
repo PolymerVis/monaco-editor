@@ -1,0 +1,22 @@
+{
+  "name": "polymer-vis",
+  "description": "Global namespace with some utilities functions for PolymerVis.",
+  "main": "polymer-vis.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0"
+  },
+  "resolutions": {
+    "polymer": "^2.0.0"
+  },
+  "homepage": "https://github.com/PolymerVis/polymer-vis",
+  "version": "2.0.0",
+  "_release": "2.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.0.0",
+    "commit": "0347c90c2ada4ed96aa5df8919d5f11b50582f45"
+  },
+  "_source": "https://github.com/PolymerVis/polymer-vis.git",
+  "_target": "^2.0.0",
+  "_originalSource": "polymer-vis"
+}

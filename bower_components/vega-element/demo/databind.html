@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8">
+
+  <meta name="viewport"
+    content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>vega-element demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../../polymer/lib/elements/dom-bind.html">
+
+  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+  <link rel="import" href="../../iron-ajax/iron-ajax.html">
+
+  <link rel="import" href="../vega.html">
+  <link rel="import" href="../vega-tooltip.html">
+  <link rel="import" href="../vega-signal.html">
+  <link rel="import" href="../vega-data.html">
+  <link rel="import" href="../vega-data-stream.html">
+  <link rel="import" href="../vega-element.html">
+
+</head>
+<body>
+
+  <custom-style>
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+
+    </style>
+  </custom-style>
+
+  <div class="vertical-section-container centered">
+    <h3>Basic vega-element demo</h3>
+
+<!-- demo #1 -->
+Binding to signals in vega runtime
+<demo-snippet>
+<template>
+
+<dom-bind id="app">
+  <template>
+
+    <!--
+    bar chart that takes in a signal "barColor"
+    which will update the color to fill the bars
+    -->
+    <vega-element hover vega-spec-url="barchart.json">
+      <!-- bind variable "barColor" to signal "barColor" -->
+      <vega-signal
+        name="barColor"
+        value="[[barColor]]"></vega-signal>
+    </vega-element>
+
+    Click to select color [[barColor]] for the bars
+    <!--
+    a list of colored circles which outputs
+    a signal "selectedColor" when clicked upon
+     -->
+    <vega-element hover vega-spec-url="colors.json">
+      <!-- bind signal "selectedColor" to variable "barColor" -->
+      <vega-signal
+        name="selectedColor"
+        value="{{barColor}}"></vega-signal>
+    </vega-element>
+
+  </template>
+</dom-bind>
+
+</template>
+</demo-snippet>
+
+<!-- demo #2 -->
+Binding to data set in vega runtime
+<demo-snippet>
+<template>
+
+<dom-bind id="app2">
+  <template>
+
+    <vega-element vega-lite-spec-url="linechart-vl.json">
+
+      <!-- if name is not provided,
+      the data set to bind to will be the
+      corresponding data set in the same order
+      as specified in the vega specification -->
+      <vega-data
+        value="{{table}}"></vega-data>
+
+    </vega-element>
+
+  </template>
+</dom-bind>
+
+<script>
+var app2 = document.querySelector('dom-bind#app2');
+
+// pre-load with a full sin curve
+var angle = 360;
+var table = [];
+for (angle = 0; angle < 360; angle += 15) {
+  table.push({angle, y: Math.sin(angle * Math.PI * 2 / 360.0)});
+}
+app2.table = table;
+
+// set a infinite loop to update data
+setInterval(() => {
+  angle += 15;
+  var entry = {
+    angle: angle,
+    y: Math.sin(angle * Math.PI * 2 / 360.0)
+  };
+  // insert new entry
+  app2.push('table', entry);
+  // keep the latest 24 rows only
+  app2.table = app2.table.slice(-24);
+}, 1000);
+</script>
+
+</template>
+</demo-snippet>
+
+
+<!-- demo #3 -->
+Binding to data set in vega runtime
+<demo-snippet>
+<template>
+
+<dom-bind id="app3">
+  <template>
+
+    <vega-element vega-spec-url="barchart.json">
+
+      <vega-data-stream
+        name="table"
+        field="amount"
+        predicate="[[predicate]]"
+        value="[[randomValue]]"></vega-data-stream>
+
+    </vega-element>
+
+  </template>
+</dom-bind>
+
+<script>
+var app3 = document.querySelector('dom-bind#app3');
+
+setInterval(() => {
+  // randomly pick a category to update
+  let field = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][
+    parseInt(Math.random() * 8)
+  ];
+  // use a function predicate to decide which row to update
+  // u can also use an actual reference to the tuple too
+  app3.predicate = o => o.category == field;
+  // use a function or constant to set the new value
+  app3.randomValue = o => parseInt(Math.random() * 100, 10);
+}, 500);
+</script>
+
+</template>
+</demo-snippet>
+
+  </div>
+</body>
+</html>

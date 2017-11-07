@@ -1,0 +1,16 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  "data": {"values": []},
+  "mark": "line",
+  "encoding": {
+    "x": {
+      "field": "angle",
+      "type": "ordinal"
+    },
+    "y": {
+      "field": "y",
+      "type": "quantitative",
+      "scale": {"domain": [-1, 1]}
+    }
+  }
+}

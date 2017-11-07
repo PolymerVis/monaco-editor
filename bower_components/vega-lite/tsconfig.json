@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "declaration": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "preserveConstEnums": true,
+    "noEmitOnError": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "inlineSourceMap": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "test-runtime/**/*.ts",
+    "examples/**/*.ts",
+    "typings/*.d.ts"
+  ],
+  "exclude": [
+    "typings/vega-lite.d.ts"
+  ]
+}

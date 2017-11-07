@@ -1,0 +1,196 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<script src="monaco-schema-vega.js"></script>
+<script src="monaco-schema-vega-lite.js"></script>
+<script src="monaco-schemas.js"></script>
+
+<dom-module id="monaco-schemas">
+<script>
+/**
+ * `monaco-schemas` is a Polymer 2.0 element to where you can retrieve a list of
+ * JSON schemas through a space-separated key string. These schemas can then be
+ * passed into `monaco-editor`.
+ *
+ * `monaco-schemas` currently only has the schemas for
+ * [Vega v3.0](https://vega.github.io/vega/) and [Vega-Lite v2.0](https://vega.github.io/vega-lite/).
+ * However, you can easily add additional schemas into `monaco-schemas`.
+ *
+ * ```html
+ * <!-- extract `schemas` by definiting a space-separated string, `keys`. -->
+ * <monaco-schemas keys="vega-lite" schemas="{{schemas}}"></monaco-schemas>
+ *
+ * <!-- pass the `schemas` array to `json-schemas` and set `json-validate` flag
+ *   to enable hints, suggestions, and validation of the inputs. -->
+ * <monaco-editor json-validate language="json"
+ *    json-schemas="[[schemas]]"></monaco-editor>
+ *```
+ *
+ * You can define your own schemas by providing the `uri` to the schema.
+ * `monaco-schemas` will automatically retrieve the schema from the `uri` if the
+ * `schema` field is empty.
+ *
+ * ```js
+ * var data = {
+ *   "vega-lite-uri": {
+ *     "uri": "https://vega.github.io/schema/vega-lite/v2.json",
+ *     "schema": null,
+ *     "fileMatch": ["*"]
+ *   }
+ * }
+ * ```
+ * ```html
+ * <!-- retrieve an array of schemas "vega-lite" and "vega-lite-uri". -->
+ * <monaco-schemas keys="vega-lite vega-lite-uri"
+ *   schemas="{{schemas}}"
+ *   data="[[data]]"></monaco-schemas>
+ * ```
+ *
+ * You can also define a custom schema directly.
+ *
+ * ```json
+ * var data_w_cat = {
+ *   "cat": {
+ *    "schema": {
+ *       "title": "Cat",
+ *       "type": "object",
+ *       "properties": {
+ *         "name": {
+ *           "description": "Name of the cat",
+ *           "type": "string"
+ *         },
+ *         "breed": {
+ *           "description": "Breed of the cat",
+ *           "type": "string"
+ *         },
+ *         "age": {
+ *           "description": "Age of the cat",
+ *           "type": "string",
+ *           "enum": ["kitten", "young adult", "adult", "old cat"]
+ *         }
+ *       }
+ *     },
+ *     "fileMatch": ["*"]
+ *   }
+ * };
+ * ```
+ * ```html
+ * <!-- retrieve custom schema "cat". -->
+ * <monaco-schemas keys="cat"
+ *   schemas="{{schemas}}"
+ *   data="[[data_w_cat]]"></monaco-schemas>
+ * ```
+ *
+ * @customElement
+ * @polymer
+ * @demo demo/monaco-schemas.html monaco-schemas demo
+ * @demo demo/vega-editor.html Vega-Lite editor
+ */
+class MonacoSchemas extends Polymer.Element {
+  static get is() {
+    return 'monaco-schemas';
+  }
+  static get properties() {
+    return {
+      /**
+       * Array of JSON schema for current active `keys`.
+       * @type {{uri:String, schema:Object, fileMatch:String[]}}
+       */
+      schemas: {
+        type: Array,
+        notify: true,
+        readOnly: true
+      },
+      /**
+       * Space-separated list of schemas to retrieve.
+       * Currently, only schema for `vega` and `vega-lite` are available.
+       * @type {String}
+       */
+      keys: {
+        type: String
+      },
+      /**
+       * A map<key,schema> of available schemas. Each schema is of the form
+       * `{uri: String, schema: Object, fileMatch: String[]}`.
+       * @type {Object<String,Object>}
+       */
+      data: {
+        type: Object,
+        observer: '_dataChanged'
+      },
+      _data: {
+        type: Object,
+        value: PolymerVis.monaco.schemas
+      }
+    };
+  }
+
+  static get observers() {
+    return ['_computeValue(keys, _data)'];
+  }
+  /**
+   * Merge the default schemas map with the new schemas map.
+   * @param {Object<String, Object>} data
+   */
+  _dataChanged(data) {
+    this.set('_data', Object.assign({}, this._data, data));
+  }
+  /**
+   * Generate an array of schemas based on the schema map provided. Update `schemas`
+   * when all the results are retrieved - either from the uri or the actual schema
+   * object.
+   * @param {String} keys A list of Space-separated short names for the schema to be retrieved as a group. e.g. [`vega` `vega-lite`].
+   * @param {Object<String, Object>} data A key-value map where the value is a schema object of the form `{uri: String, schema: Object, fileMatch: String[]}`.
+   */
+  _computeValue(keys, data) {
+    if (!keys || !data) return;
+    var promises = keys
+      .split(/\s+/)
+      .map(s => data[s.trim()])
+      .filter(o => o)
+      .map(o => {
+        if (o.schema) return Promise.resolve(o);
+        return this._loadFromUri(o.uri).then(schema => {
+          o.schema = schema;
+          return o;
+        });
+      });
+    Promise.all(promises).then(schema => {
+      schema && this._setSchemas(schema.filter(s => s.schema));
+    });
+  }
+
+  /**
+   * Load and parse an uri as JSON schema. Return a `Promise` to the JSON schema.
+   * @param {String} uri uri to a [JSON schema](http://json-schema.org/).
+   * @return {Promise}
+   */
+  _loadFromUri(uri) {
+    return new Promise(resolve => {
+      var httpRequest = new XMLHttpRequest();
+      if (!httpRequest) {
+        console.warn('cannot create a XMLHttpRequest instance!');
+        return false;
+      }
+      httpRequest.onreadystatechange = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            let res = httpRequest.responseText;
+            try {
+              res = JSON.parse(httpRequest.responseText);
+              return resolve(res);
+            } catch (err) {
+              console.warn(`failed to load schema from ${uri}`);
+              resolve({});
+              // do nothing
+            }
+          }
+        }
+      };
+      httpRequest.open('GET', uri);
+      httpRequest.send();
+    });
+  }
+}
+
+window.customElements.define(MonacoSchemas.is, MonacoSchemas);
+</script>
+</dom-module>
