@@ -24,6 +24,5 @@
   },
   "_source": "https://github.com/PolymerVis/monaco-editor.git",
   "_target": "^2.0.0",
-  "_originalSource": "PolymerVis/monaco-editor",
-  "_direct": true
+  "_originalSource": "PolymerVis/monaco-editor"
 }

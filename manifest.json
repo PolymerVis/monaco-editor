@@ -2,6 +2,6 @@
   "name": "monaco-editor-demo",
   "short_name": "monaco-editor-demo",
   "description": "Demo for Polymer element monaco-editor.",
-  "start_url": "/build/demo/",
+  "start_url": "/",
   "display": "standalone"
 }

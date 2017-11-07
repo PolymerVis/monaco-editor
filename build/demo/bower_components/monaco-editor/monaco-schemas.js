@@ -1,0 +1,1 @@
+(function(a){a.monaco=a.monaco||{},a.monaco.schemas={vega:{uri:'https://vega.github.io/schema/vega/v3.0.json',schema:a.schemas.vega,fileMatch:['*']},"vega-lite":{uri:'https://vega.github.io/schema/vega-lite/v2.json',fileMatch:['*']}}})(window.PolymerVis=window.PolymerVis||{});

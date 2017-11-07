@@ -16,7 +16,8 @@
   "builds": [
     {
       "name": "demo",
-      "preset": "es5-bundled"
+      "preset": "es5-bundled",
+      "bundle": false
     }
   ]
 }
