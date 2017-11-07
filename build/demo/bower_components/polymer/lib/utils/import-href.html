@@ -1,1 +1,12 @@
-<html><head><link rel="import" href="boot.html"><script>(function(){'use strict';function a(a){window.HTMLImports?HTMLImports.whenReady(a):a()}Polymer.importHref=function(b,c,d,e){var f=document.head.querySelector('link[href="'+b+'"][import-href]');f||(f=document.createElement('link'),f.rel='import',f.href=b,f.setAttribute('import-href','')),e&&f.setAttribute('async','');var g=function(){f.removeEventListener('load',h),f.removeEventListener('error',i)},h=function(b){g(),f.__dynamicImportLoaded=!0,c&&a(function(){c(b)})},i=function(b){g(),f.parentNode&&f.parentNode.removeChild(f),d&&a(function(){d(b)})};return f.addEventListener('load',h),f.addEventListener('error',i),null==f.parentNode?document.head.appendChild(f):f.__dynamicImportLoaded&&f.dispatchEvent(new Event('load')),f}})();</script></head><body></body></html>
+<!--
+@license
+Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="boot.html">
+
+<script>(function(){'use strict';function a(a){window.HTMLImports?HTMLImports.whenReady(a):a()}Polymer.importHref=function(b,c,d,e){let f=document.head.querySelector('link[href="'+b+'"][import-href]');f||(f=document.createElement('link'),f.rel='import',f.href=b,f.setAttribute('import-href','')),e&&f.setAttribute('async','');let g=function(){f.removeEventListener('load',h),f.removeEventListener('error',i)},h=function(b){g(),f.__dynamicImportLoaded=!0,c&&a(()=>{c(b)})},i=function(b){g(),f.parentNode&&f.parentNode.removeChild(f),d&&a(()=>{d(b)})};return f.addEventListener('load',h),f.addEventListener('error',i),null==f.parentNode?document.head.appendChild(f):f.__dynamicImportLoaded&&f.dispatchEvent(new Event('load')),f}})();</script>
+</head><body></body></html>

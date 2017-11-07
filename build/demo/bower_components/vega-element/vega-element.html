@@ -1,1 +1,238 @@
-<html><head><link rel="import" href="../polymer/polymer-element.html"><link rel="import" href="../polymer/lib/utils/debounce.html"><link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html"><link rel="import" href="../polymer-vis/polymer-vis.html"></head><body><dom-module id="vega-element"><template><style>:host{display:block;}</style><div id="vegaElement"></div><slot id="slot"></slot></template><script>var VegaElement=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,[{key:'ready',value:function(){var a=this;if(babelHelpers.get(b.prototype.__proto__||Object.getPrototypeOf(b.prototype),'ready',this).call(this),this._vegaReady=window.vega,!window.d3&&!window.vega)return void PolymerVis.loadScript(this.vegaSrc,function(){if(a._vegaReady=window.vega&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0')});if(window.d3&&!window.vega){if('4'!==window.d3.version[0])throw new Error('d3 version must be at least 4.0.0');PolymerVis.loadScript(this.vegaCorSrc,function(){if(a._vegaReady=window.vega&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0')})}}},{key:'connectedCallback',value:function(){babelHelpers.get(b.prototype.__proto__||Object.getPrototypeOf(b.prototype),'connectedCallback',this).call(this),this._connected=!0,this._observeSlot()}},{key:'disconnectedCallback',value:function(){this._connected=!1,this._observer&&this._observer.disconnect()}},{key:'run',value:function(a){if(this.view)return this.view=this.view.run(a||this.customEncode),this.rendered=!0,this.view}},{key:'parse',value:function(a,b){if(this._vegaReady&&a)try{return vega.parse(a,b)}catch(a){this.dispatchEvent(new CustomEvent('error',{detail:a})),console.warn(a)}}},{key:'compile',value:function(){var a=this,b=1<arguments.length&&void 0!==arguments[1]?arguments[1]:'none';return this.vegaLiteSpec?new Promise(function(c,d){a.__loadVegaLite(function(){var e=vega[b||a.logLevel]||vega.None;try{var f=window.vl.compile(a.vegaLiteSpec,e).spec;a.vegaSpec=f,c(f)}catch(b){a.dispatchEvent(new CustomEvent('error',{detail:b})),d(b)}})}).catch(function(b){a.dispatchEvent(new CustomEvent('error',{detail:b})),console.warn(b)}):void 0}},{key:'resize',value:function(){return this.view?this.view.resize():void 0}},{key:'debounceRun',value:function(){var a=this;this._debounceJob=Polymer.Debouncer.debounce(this._debounceJob,Polymer.Async.microTask,function(){a.run()})}},{key:'loadJSON',value:function(a){var b=this;if(!this._vegaReady||!a)return Promise.reject('url or vega not ready!');var c=vega.loader();return c.load(a).then(function(a){return JSON.parse(a)}).catch(function(a){b.dispatchEvent(new CustomEvent('error',{detail:a}))})}},{key:'downloadImage',value:function(){var a=this,b=0<arguments.length&&void 0!==arguments[0]?arguments[0]:'png';this.view&&this.view.toImageURL(b).then(function(a){var c=document.createElement('a');c.setAttribute('href',a),c.setAttribute('target','_blank'),c.setAttribute('download','vega-export.'+b),c.dispatchEvent(new MouseEvent('click'))}).catch(function(b){a.dispatchEvent(new CustomEvent('error',{detail:b}))})}},{key:'_loadTooltipPlugin',value:function(a,b){this.tooltip&&this._tooltipReady&&this.rendered&&a&&window.vegaTooltip.vega(a,b)}},{key:'_loadTooltip',value:function(a){var b=this;this._tooltipReady=window.vegaTooltip&&!0,!this._tooltipReady&&a&&this._vegaReady&&(PolymerVis.loadScript(this.tooltipPluginSrc,function(){b._tooltipReady=window.vegaTooltip&&!0}),PolymerVis.loadStylesheet(this.tooltipPluginCssSrc))}},{key:'_vegaSpecUrlChanged',value:function(a){var b=this;a&&this.loadJSON(a).then(function(a){b.vegaSpec=a}).catch(function(){})}},{key:'_vegaLiteSpecUrlChanged',value:function(a){var b=this;a&&this.loadJSON(a).then(function(a){b.vegaLiteSpec=a}).catch(function(a){b.dispatchEvent(new CustomEvent('error',{detail:a}))})}},{key:'_observeSlot',value:function(){return this._observer?void this._observer.connect():void(this._observer=new Polymer.FlattenedNodesObserver(this.$.slot,this._slotChanged.bind(this)))}},{key:'_bindSlots',value:function(a){var b=this;if(this.view&&a&&this.vegaSpec&&this.rendered){var c=0;a.forEach(function(a){'VEGA-DATA'===a.nodeName&&b.vegaSpec&&(a.name=a.name||b.vegaSpec.data[c].name,c+=1),a.view=b.view,a.rendered=b.rendered})}}},{key:'_slotChanged',value:function(){this.slots=this.shadowRoot.querySelector('slot').assignedNodes({flatten:!0}).filter(function(a){return 0<=a.nodeName.indexOf('VEGA')})}},{key:'_computeView',value:function(a,b){if(this._vegaReady&&a&&this._connected){this.view&&this.view.finalize();var c=vega[c]||vega.None,d=new vega.View(a,{logLevel:c,renderer:this.renderer}).initialize(b?null:this.$.vegaElement);return this.rendered=!1,this.dispatchEvent(new CustomEvent('view-ready',{detail:d})),d}}},{key:'_setLogLevel',value:function(a){if(this.view&&vega[a])return this.view=this.view.logLevel(vega[a]),this.rendered||this.debounceRun(),this.view}},{key:'_setHover',value:function(a,b){if(this.view&&this.hover)return this.view=this.view.hover(a,b),this.rendered||this.debounceRun(),this.view}},{key:'_setRenderer',value:function(a){if(this.view&&a)return this.view=this.view.renderer(a),this.rendered||this.debounceRun(),this.view}},{key:'_updateBackground',value:function(a){this.view&&a&&(this.view.background(a),this.rendered&&this.debounceRun())}},{key:'_updateWidth',value:function(a){this.view&&a&&(this.view.width(a),this.rendered&&this.debounceRun())}},{key:'_updateHeight',value:function(a){this.view&&a&&(this.view.height(a),this.rendered&&this.debounceRun())}},{key:'_updatePadding',value:function(a){this.view&&a&&(this.view.padding(a),this.rendered&&this.debounceRun())}},{key:'__loadVegaLite',value:function(a){var b=this;this._vegaLiteReady=window.vl,window.vl?a():PolymerVis.loadScript(this.vegaLiteSrc,function(){if(b._vegaLiteReady=window.vl&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0');a()})}}],[{key:'is',get:function(){return'vega-element'}},{key:'properties',get:function(){return{headless:{type:Boolean},tooltip:{type:Boolean},tooltipOptions:{type:Object,value:void 0},tooltipPluginSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.0/vega-tooltip.min.js'},tooltipPluginCssSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.0/vega-tooltip.min.css'},vegaSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega/3.0.2/vega.min.js'},vegaCoreSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega/3.0.2/vega-core.min.js'},vegaLiteSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-lite/2.0.0-rc3/vega-lite.js'},logLevel:{type:String,value:'None'},renderer:{type:String,value:'canvas'},hover:{type:Boolean},hoverSet:{type:String,value:'hover'},updateSet:{type:String,value:'update'},background:{type:String},view:{type:Object,notify:!0,readOnly:!0,computed:'_computeView(_runtime, headless, _vegaReady, _connected)'},width:{type:Number,notify:!0,reflectToAttribute:!0},height:{type:Number,notify:!0,reflectToAttribute:!0},padding:{type:Object},vegaSpec:{type:Object,notify:!0},vegaLiteSpec:{type:Object,notify:!0},vegaSpecUrl:{type:String},vegaLiteSpecUrl:{type:String},config:{type:Object,value:function(){return{}}},customEncode:{type:String},rendered:{type:Boolean,notify:!0},slots:{type:Array,notify:!0},_runtime:{type:Object,computed:'parse(vegaSpec, config, _vegaReady)'},_vegaReady:{type:Boolean},_tooltipReady:{type:Boolean,value:!1},_connected:{type:Boolean},_debounceJob:{type:Object},_observer:{type:Object}}}},{key:'observers',get:function(){return['_vegaLiteSpecUrlChanged(vegaLiteSpecUrl, _vegaReady)','_vegaSpecUrlChanged(vegaSpecUrl, _vegaReady)','_setLogLevel(logLevel, view)','_setRenderer(renderer, view)','_setHover(hoverSet, updateSet, hover, view)','_updateWidth(width, view)','_updateHeight(height, view)','_updateBackground(background, view)','_updatePadding(padding, view)','_loadTooltip(tooltip, _vegaReady)','_loadTooltipPlugin(view, tooltipOptions, _tooltipReady, rendered)','compile(vegaLiteSpec, logLevel)','_bindSlots(slots, view, rendered, vegaSpec)']}}]),b}(Polymer.Element);window.customElements.define(VegaElement.is,VegaElement);</script></dom-module></body></html>
+<html><head><link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/utils/debounce.html">
+<link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html">
+<link rel="import" href="../polymer-vis/polymer-vis.html">
+<!--
+```
+<custom-element-demo>
+  <template is="dom-bind">
+    <link rel="import" href="vega-tooltip.html">
+    <link rel="import" href="vega-signal.html">
+    <link rel="import" href="vega-element.html">
+    <next-code-block></next-code-block>
+  </template>
+</custom-element-demo>
+```
+
+```html
+<vega-element tooltip hover
+  vega-spec-url="./demo/barchart.json"></vega-element>
+
+```
+
+`vega-element` is the Polymer element to provide an easy HTML interface for
+[vega](https://vega.github.io/vega) and
+[vega-lite](https://vega.github.io/vega-lite) visualizations.
+
+More API documentation and Demos can be found
+[here](https://www.webcomponents.org/element/PolymerVis/vega-element)
+
+**Versions details**
+v2 is a breaking change from v1 as it is an upgrade in major versions for both Polymer and Vega.
+- [**v2**](https://github.com/PolymerVis/vega-element/tree/polymer2) Supports Polymer 2.0, Vega 3.0, and Vega-lite 2.0
+- [**v1**](https://github.com/PolymerVis/vega-element/tree/polymer1) Supports Polymer 1.0 and Vega 2.0
+
+## Installation
+
+```
+bower install --save PolymerVis/vega-element
+```
+
+## Component summary
+
+[Vega](http://vega.github.io/) is a declarative format for creating, saving,
+and sharing visualization designs. With Vega, visualizations are described in
+JSON, and generate interactive views using either HTML5 Canvas or SVG.
+
+`vega-element` is the Polymer element to provide an easy HTML interface to
+render visualizations for any vega and vega-lite specifications.
+
+`vega-signal` and `vega-data` provide data-binding to the `signals` and `data`
+in the vega runtime.
+
+`vega-data-stream` provide reactive updates to specific entry or entries in
+the specified data set in vega runtime.
+
+[vega-tooltip](https://github.com/vega/vega-tooltip) the plugin for
+vega/vegalite is also available in the form of flag `tooltip` and property
+`tooltip-options` in `vega-element`.
+
+Optional components such as `vega-signal`, `vega-data`, and `vega-data-stream`
+need to be **imported separately**. However, `vega-elements.html` provides a
+quick list of all the available components.
+
+### Important notes on *d3*, *vega*, *vega-lite*, *vega-tooltip* dependencies:
+
+`vega-element` depends on various dependencies such as [d3](https://d3js.org/),
+[vega](https://vega.github.io/vega/), [vega-lite](https://vega.github.io/vega-lite/),
+and [vega-tooltip](https://github.com/vega/vega-tooltip). However, not all of
+them are required for all use cases, as such, by default none of these libraries
+will be included in the `vega-element` import.
+
+Individual libraries can be included normally with `<script>` or through
+`<link rel="import">` with the provided imports. Either vega or vega-core
+**MUST** be included for `vega-element` to work. Include vega-core only if
+d3 needs to be separated from vega (i.e. d3 is used in other parts of the app).
+
+**`vega.html`**
+Full vega bundle with all dependencies, including d3 modules.
+
+**`vega-core.html`**
+Smaller vega bundle that excludes redundant d3 files.
+
+**`d3.html`**
+Full d3 bundle. Not required if `vega.html` is imported. Can be imported together with `vega-core.html`.
+
+**`vega-lite.html`**
+Full vega-lite bundle. Required only if vega-lite specifications are used.
+
+**`vega-tooltip`**
+vega-tooltip bundle together with the corresponding stylesheet. Required only
+if the tooltip plugin is needed.
+
+`vega-element` has built-in mechanism to include the appropriate libraries
+directly from CDN if they are not included. However, these libraries may not be
+the most updated versions. The default URLs can be modified through the
+properties: `vega-src`, `vega-core-src`, `vega-lite-src`, `tooltip-plugin-src`,
+and `tooltip-plugin-css-src`.
+
+Including the required imports are more efficient than dynamically including
+the libraries as polymer-cli will able to optimize the build properly.
+
+## Usage
+
+**Basic vega usage**
+```html
+<vega-element vega-spec-url="vega-spec.json"></vega-element>
+
+<vega-element vega-spec="[[vegaSpecObject]]"></vega-element>
+```
+
+**Basic vega-lite usage**
+```html
+<vega-element vega-lite-spec-url="vega-lite-spec.json"></vega-element>
+
+<vega-element vega-lite-spec="[[vegaLiteSpecObject]]"></vega-element>
+```
+vega-lite specification is automatically parsed into vega specification and is
+available as `vega-spec` property.
+```html
+<vega-element
+  vega-lite-spec="[[vegaLiteSpecObject]]"
+  vega-spec="{{resultantVegaSpecObject}}"></vega-element>
+```
+
+**Enable hover event processing**
+```html
+<vega-element hover vega-spec-url="vega-spec.json"></vega-element>
+```
+
+**Enable tooltip plugin**
+```html
+<link rel="import" href="vega-tooltip">
+<vega-element tooltip
+  tooltip-options="[[tooltipOptions]]"
+  vega-spec-url="vega-spec.json"></vega-element>
+```
+
+`tooltipOptions`
+```javascript
+/**
+ * more customization options at
+ * https://github.com/vega/vega-tooltip/blob/master/docs/customizing_your_tooltip.md
+ */
+{
+  showAllFields: false,
+  fields: [
+    {
+      field: 'category',
+      title: 'Category'
+    },
+    {
+      field: 'amount',
+      title: 'Amount',
+      formatType: 'number',
+      format: ',d'
+    }
+  ],
+  delay: 250,
+  colorTheme: 'light'
+}
+```
+
+**Data-binding to signals**
+```html
+<import rel="import" href="vega-signal">
+
+<vega-element hover vega-spec-url="barchart.json">
+  <vega-signal
+    name="barColor"
+    value="[[barColor]]"></vega-signal>
+</vega-element>
+
+Click to select color [[barColor]] for the bars
+<vega-element hover vega-spec-url="colors.json">
+  <vega-signal
+    name="selectedColor"
+    value="{{barColor}}"></vega-signal>
+</vega-element>
+```
+
+**Data-binding to specified data set**
+```html
+<vega-element vega-lite-spec-url="linechart-vl.json">
+
+  <vega-data
+    name="table"
+    value="{{table}}"></vega-data>
+
+</vega-element>
+```
+
+**reactive updates to specific entry or entries**
+```html
+<vega-element vega-spec-url="barchart.json">
+
+  <vega-data-stream
+    name="table"
+    field="amount"
+    predicate="[[predicate]]"
+    value="[[randomValue]]"></vega-data-stream>
+
+</vega-element>
+```
+
+**headless mode and exporting SVG or PNG images**
+```html
+<vega-element id="chart"
+  headless
+  vega-spec-url="barchart.json"></vega-element>
+
+<button onclick="javascript:downloadImage('svg')">Download SVG</button>
+<button onclick="javascript:downloadImage('png')">Download PNG</button>
+```
+```javascript
+function downloadImage(type) {
+  return this.$.chart.downloadImage(type);
+}
+```
+
+@customElement
+@polymer
+@demo demo/index.html Basic demo
+@demo demo/tooltip.html Tooltip demo
+@demo demo/databind.html Data-binding demo
+
+-->
+
+</head><body><dom-module id="vega-element">
+
+  <template>
+    <style>:host{display:block;}</style>
+    <div id="vegaElement"></div>
+    <slot id="slot">
+  </slot></template>
+
+<script>class VegaElement extends Polymer.Element{static get is(){return'vega-element'}static get properties(){return{headless:{type:Boolean},tooltip:{type:Boolean},tooltipOptions:{type:Object,value:void 0},tooltipPluginSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.0/vega-tooltip.min.js'},tooltipPluginCssSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.0/vega-tooltip.min.css'},vegaSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega/3.0.2/vega.min.js'},vegaCoreSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega/3.0.2/vega-core.min.js'},vegaLiteSrc:{type:String,value:'https://cdnjs.cloudflare.com/ajax/libs/vega-lite/2.0.0-rc3/vega-lite.js'},logLevel:{type:String,value:'None'},renderer:{type:String,value:'canvas'},hover:{type:Boolean},hoverSet:{type:String,value:'hover'},updateSet:{type:String,value:'update'},background:{type:String},view:{type:Object,notify:!0,readOnly:!0,computed:'_computeView(_runtime, headless, _vegaReady, _connected)'},width:{type:Number,notify:!0,reflectToAttribute:!0},height:{type:Number,notify:!0,reflectToAttribute:!0},padding:{type:Object},vegaSpec:{type:Object,notify:!0},vegaLiteSpec:{type:Object,notify:!0},vegaSpecUrl:{type:String},vegaLiteSpecUrl:{type:String},config:{type:Object,value:function(){return{}}},customEncode:{type:String},rendered:{type:Boolean,notify:!0},slots:{type:Array,notify:!0},_runtime:{type:Object,computed:'parse(vegaSpec, config, _vegaReady)'},_vegaReady:{type:Boolean},_tooltipReady:{type:Boolean,value:!1},_connected:{type:Boolean},_debounceJob:{type:Object},_observer:{type:Object}}}static get observers(){return['_vegaLiteSpecUrlChanged(vegaLiteSpecUrl, _vegaReady)','_vegaSpecUrlChanged(vegaSpecUrl, _vegaReady)','_setLogLevel(logLevel, view)','_setRenderer(renderer, view)','_setHover(hoverSet, updateSet, hover, view)','_updateWidth(width, view)','_updateHeight(height, view)','_updateBackground(background, view)','_updatePadding(padding, view)','_loadTooltip(tooltip, _vegaReady)','_loadTooltipPlugin(view, tooltipOptions, _tooltipReady, rendered)','compile(vegaLiteSpec, logLevel)','_bindSlots(slots, view, rendered, vegaSpec)']}ready(){if(super.ready(),this._vegaReady=window.vega,!window.d3&&!window.vega)return void PolymerVis.loadScript(this.vegaSrc,()=>{if(this._vegaReady=window.vega&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0')});if(window.d3&&!window.vega){if('4'!==window.d3.version[0])throw new Error('d3 version must be at least 4.0.0');PolymerVis.loadScript(this.vegaCorSrc,()=>{if(this._vegaReady=window.vega&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0')})}}connectedCallback(){super.connectedCallback(),this._connected=!0,this._observeSlot()}disconnectedCallback(){this._connected=!1,this._observer&&this._observer.disconnect()}run(a){if(this.view)return this.view=this.view.run(a||this.customEncode),this.rendered=!0,this.view}parse(a,b){if(this._vegaReady&&a)try{return vega.parse(a,b)}catch(a){this.dispatchEvent(new CustomEvent('error',{detail:a})),console.warn(a)}}compile(a,b='none'){return this.vegaLiteSpec?new Promise((a,c)=>{this.__loadVegaLite(()=>{let d=vega[b||this.logLevel]||vega.None;try{let b=window.vl.compile(this.vegaLiteSpec,d).spec;this.vegaSpec=b,a(b)}catch(a){this.dispatchEvent(new CustomEvent('error',{detail:a})),c(a)}})}).catch((a)=>{this.dispatchEvent(new CustomEvent('error',{detail:a})),console.warn(a)}):void 0}resize(){return this.view?this.view.resize():void 0}debounceRun(){this._debounceJob=Polymer.Debouncer.debounce(this._debounceJob,Polymer.Async.microTask,()=>{this.run()})}loadJSON(a){if(!this._vegaReady||!a)return Promise.reject('url or vega not ready!');var b=vega.loader();return b.load(a).then((a)=>JSON.parse(a)).catch((a)=>{this.dispatchEvent(new CustomEvent('error',{detail:a}))})}downloadImage(a='png'){this.view&&this.view.toImageURL(a).then(function(b){var c=document.createElement('a');c.setAttribute('href',b),c.setAttribute('target','_blank'),c.setAttribute('download','vega-export.'+a),c.dispatchEvent(new MouseEvent('click'))}).catch((a)=>{this.dispatchEvent(new CustomEvent('error',{detail:a}))})}_loadTooltipPlugin(a,b){this.tooltip&&this._tooltipReady&&this.rendered&&a&&window.vegaTooltip.vega(a,b)}_loadTooltip(a){this._tooltipReady=window.vegaTooltip&&!0;!this._tooltipReady&&a&&this._vegaReady&&(PolymerVis.loadScript(this.tooltipPluginSrc,()=>{this._tooltipReady=window.vegaTooltip&&!0}),PolymerVis.loadStylesheet(this.tooltipPluginCssSrc))}_vegaSpecUrlChanged(a){a&&this.loadJSON(a).then((a)=>{this.vegaSpec=a}).catch(()=>{})}_vegaLiteSpecUrlChanged(a){a&&this.loadJSON(a).then((a)=>{this.vegaLiteSpec=a}).catch((a)=>{this.dispatchEvent(new CustomEvent('error',{detail:a}))})}_observeSlot(){return this._observer?void this._observer.connect():void(this._observer=new Polymer.FlattenedNodesObserver(this.$.slot,this._slotChanged.bind(this)))}_bindSlots(a){if(this.view&&a&&this.vegaSpec&&this.rendered){var b=0;a.forEach((a)=>{'VEGA-DATA'===a.nodeName&&this.vegaSpec&&(a.name=a.name||this.vegaSpec.data[b].name,b+=1),a.view=this.view,a.rendered=this.rendered})}}_slotChanged(){this.slots=this.shadowRoot.querySelector('slot').assignedNodes({flatten:!0}).filter((a)=>0<=a.nodeName.indexOf('VEGA'))}_computeView(a,b){if(this._vegaReady&&a&&this._connected){this.view&&this.view.finalize();var c=vega[c]||vega.None,d=new vega.View(a,{logLevel:c,renderer:this.renderer}).initialize(b?null:this.$.vegaElement);return this.rendered=!1,this.dispatchEvent(new CustomEvent('view-ready',{detail:d})),d}}_setLogLevel(a){if(this.view&&vega[a])return this.view=this.view.logLevel(vega[a]),this.rendered||this.debounceRun(),this.view}_setHover(a,b){if(this.view&&this.hover)return this.view=this.view.hover(a,b),this.rendered||this.debounceRun(),this.view}_setRenderer(a){if(this.view&&a)return this.view=this.view.renderer(a),this.rendered||this.debounceRun(),this.view}_updateBackground(a){this.view&&a&&(this.view.background(a),this.rendered&&this.debounceRun())}_updateWidth(a){this.view&&a&&(this.view.width(a),this.rendered&&this.debounceRun())}_updateHeight(a){this.view&&a&&(this.view.height(a),this.rendered&&this.debounceRun())}_updatePadding(a){this.view&&a&&(this.view.padding(a),this.rendered&&this.debounceRun())}__loadVegaLite(a){this._vegaLiteReady=window.vl,window.vl?a():PolymerVis.loadScript(this.vegaLiteSrc,()=>{if(this._vegaLiteReady=window.vl&&!0,'3'!==window.vega.version[0])throw new Error('vega version must be at least 3.0.0');a()})}}window.customElements.define(VegaElement.is,VegaElement);</script>
+</dom-module>
+</body></html>

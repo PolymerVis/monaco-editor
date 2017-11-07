@@ -8,7 +8,8 @@
   ],
   "extraDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/*.js"
+    "bower_components/webcomponentsjs/*.js",
+    "bower_components/monaco-editor/node_modules/monaco-editor/min/vs/**/*"
   ],
   "lint": {
     "rules": ["polymer-2"]
@@ -16,8 +17,8 @@
   "builds": [
     {
       "name": "demo",
-      "preset": "es5-bundled",
-      "bundle": false
+      "preset": "es6-unbundled",
+      "html": {"minify": false}
     }
   ]
 }

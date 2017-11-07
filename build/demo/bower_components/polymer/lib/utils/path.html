@@ -1,1 +1,12 @@
-<html><head><link rel="import" href="boot.html"><script>(function(){'use strict';var a={isPath:function(a){return 0<=a.indexOf('.')},root:function(a){var b=a.indexOf('.');return-1===b?a:a.slice(0,b)},isAncestor:function(a,b){return 0===a.indexOf(b+'.')},isDescendant:function(a,b){return 0===b.indexOf(a+'.')},translate:function(a,b,c){return b+c.slice(a.length)},matches:function(a,b){return a===b||this.isAncestor(a,b)||this.isDescendant(a,b)},normalize:function(a){if(Array.isArray(a)){for(var b,c=[],d=0;d<a.length;d++){b=a[d].toString().split('.');for(var e=0;e<b.length;e++)c.push(b[e])}return c.join('.')}return a},split:function(a){return Array.isArray(a)?this.normalize(a).split('.'):a.toString().split('.')},get:function(a,b,c){for(var d=a,e=this.split(b),f=0;f<e.length;f++){if(!d)return;var g=e[f];d=d[g]}return c&&(c.path=e.join('.')),d},set:function(a,b,c){var d=a,e=this.split(b),f=e[e.length-1];if(1<e.length){for(var g,h=0;h<e.length-1;h++)if(g=e[h],d=d[g],!d)return;d[f]=c}else d[b]=c;return e.join('.')}};a.isDeep=a.isPath,Polymer.Path=a})();</script></head><body></body></html>
+<!--
+@license
+Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="boot.html">
+
+<script>(function(){'use strict';const a={isPath:function(a){return 0<=a.indexOf('.')},root:function(a){let b=a.indexOf('.');return-1===b?a:a.slice(0,b)},isAncestor:function(a,b){return 0===a.indexOf(b+'.')},isDescendant:function(a,b){return 0===b.indexOf(a+'.')},translate:function(a,b,c){return b+c.slice(a.length)},matches:function(a,b){return a===b||this.isAncestor(a,b)||this.isDescendant(a,b)},normalize:function(a){if(Array.isArray(a)){let b=[];for(let c,d=0;d<a.length;d++){c=a[d].toString().split('.');for(let a=0;a<c.length;a++)b.push(c[a])}return b.join('.')}return a},split:function(a){return Array.isArray(a)?this.normalize(a).split('.'):a.toString().split('.')},get:function(a,b,c){let d=a,e=this.split(b);for(let f=0;f<e.length;f++){if(!d)return;let a=e[f];d=d[a]}return c&&(c.path=e.join('.')),d},set:function(a,b,c){let d=a,e=this.split(b),f=e[e.length-1];if(1<e.length){for(let a,b=0;b<e.length-1;b++)if(a=e[b],d=d[a],!d)return;d[f]=c}else d[b]=c;return e.join('.')}};a.isDeep=a.isPath,Polymer.Path=a})();</script>
+</head><body></body></html>

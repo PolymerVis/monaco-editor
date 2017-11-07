@@ -1,1 +1,12 @@
-<html><head><link rel="import" href="boot.html"><script>(function(){'use strict';function a(a,d){if(a&&e.test(a))return a;if(void 0===b){b=!1;try{var f=new URL('b','http://a');f.pathname='c%20d',b='http://a/c%20d'===f.href}catch(a){}}return(d||(d=document.baseURI||window.location.href),b)?new URL(a,d).href:(c||(c=document.implementation.createHTMLDocument('temp'),c.base=c.createElement('base'),c.head.appendChild(c.base),c.anchor=c.createElement('a'),c.body.appendChild(c.anchor)),c.base.href=d,c.anchor.href=a,c.anchor.href||a)}var b,c,d=/(url\()([^)]*)(\))/g,e=/(^\/)|(^#)|(^[\w-\d]*:)/;Polymer.ResolveUrl={resolveCss:function(b,c){return b.replace(d,function(b,d,e,f){return d+'\''+a(e.replace(/["']/g,''),c)+'\''+f})},resolveUrl:a,pathFromUrl:function(a){return a.substring(0,a.lastIndexOf('/')+1)}}})();</script></head><body></body></html>
+<!--
+@license
+Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="boot.html">
+
+<script>(function(){'use strict';function a(a,d){if(a&&e.test(a))return a;if(void 0===b){b=!1;try{const a=new URL('b','http://a');a.pathname='c%20d',b='http://a/c%20d'===a.href}catch(a){}}return(d||(d=document.baseURI||window.location.href),b)?new URL(a,d).href:(c||(c=document.implementation.createHTMLDocument('temp'),c.base=c.createElement('base'),c.head.appendChild(c.base),c.anchor=c.createElement('a'),c.body.appendChild(c.anchor)),c.base.href=d,c.anchor.href=a,c.anchor.href||a)}let b,c,d=/(url\()([^)]*)(\))/g,e=/(^\/)|(^#)|(^[\w-\d]*:)/;Polymer.ResolveUrl={resolveCss:function(b,c){return b.replace(d,function(b,d,e,f){return d+'\''+a(e.replace(/["']/g,''),c)+'\''+f})},resolveUrl:a,pathFromUrl:function(a){return a.substring(0,a.lastIndexOf('/')+1)}}})();</script>
+</head><body></body></html>

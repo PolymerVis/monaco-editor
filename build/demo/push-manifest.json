@@ -258,10 +258,6 @@
     }
   },
   "src/demo/index.html": {
-    "bower_components/webcomponentsjs/custom-elements-es5-adapter.js": {
-      "type": "script",
-      "weight": 1
-    },
     "bower_components/webcomponentsjs/webcomponents-lite.js": {
       "type": "script",
       "weight": 1
@@ -492,10 +488,6 @@
     }
   },
   "src/demo/monaco-schemas.html": {
-    "bower_components/webcomponentsjs/custom-elements-es5-adapter.js": {
-      "type": "script",
-      "weight": 1
-    },
     "bower_components/webcomponentsjs/webcomponents-lite.js": {
       "type": "script",
       "weight": 1
@@ -742,10 +734,6 @@
     }
   },
   "src/demo/vega-editor.html": {
-    "bower_components/webcomponentsjs/custom-elements-es5-adapter.js": {
-      "type": "script",
-      "weight": 1
-    },
     "bower_components/webcomponentsjs/webcomponents-lite.js": {
       "type": "script",
       "weight": 1

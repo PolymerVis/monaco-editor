@@ -1,1 +1,29 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="prism-import.html"><script>(function(){'use strict';var a='syntax-highlight';Polymer({is:'prism-highlighter',properties:{languages:{type:Object,value:function(){return{}}}},ready:function(){this._handler=this._highlight.bind(this)},attached:function(){(this.parentNode.host||this.parentElement).addEventListener(a,this._handler)},detached:function(){(this.parentNode.host||this.parentElement).removeEventListener(a,this._handler)},_highlight:function(b){if(!b.detail||!b.detail.code)return void Polymer.Base._warn('Malformed',a,'event:',b.detail);b.stopPropagation();var c=b.detail;c.code=Prism.highlight(c.code,this._detectLang(c.code,c.lang))},_detectLang:function(a,b){if(!b)return a.match(/^\s*</)?Prism.languages.markup:Prism.languages.javascript;if(this.languages[b])return this.languages[b];if(Prism.languages[b])return Prism.languages[b];switch(b.substr(0,2)){case'js':case'es':return Prism.languages.javascript;case'c':return Prism.languages.clike;default:return Prism.languages.markup;}}})})();</script></head><body></body></html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="prism-import.html">
+
+<!--
+Syntax highlighting via [Prism](http://prismjs.com/).
+
+Place a `<prism-highlighter>` in your document, preferably as a direct child of
+`<body>`. It will listen for `syntax-highlight` events on its parent element,
+and annotate the code being provided via that event.
+
+The `syntax-highlight` event's detail is expected to have a `code` property
+containing the source to highlight. The event detail can optionally contain a
+`lang` property, containing a string like `"html"`, `"js"`, etc.
+
+This flow is supported by [`<marked-element>`](https://github.com/PolymerElements/marked-element).
+
+@element prism-highlighter
+@demo demo/index.html
+-->
+<script>(function(){'use strict';var a='syntax-highlight';Polymer({is:'prism-highlighter',properties:{languages:{type:Object,value:function(){return{}}}},ready:function(){this._handler=this._highlight.bind(this)},attached:function(){(this.parentNode.host||this.parentElement).addEventListener(a,this._handler)},detached:function(){(this.parentNode.host||this.parentElement).removeEventListener(a,this._handler)},_highlight:function(b){if(!b.detail||!b.detail.code)return void Polymer.Base._warn('Malformed',a,'event:',b.detail);b.stopPropagation();var c=b.detail;c.code=Prism.highlight(c.code,this._detectLang(c.code,c.lang))},_detectLang:function(a,b){if(!b)return a.match(/^\s*</)?Prism.languages.markup:Prism.languages.javascript;if(this.languages[b])return this.languages[b];if(Prism.languages[b])return Prism.languages[b];switch(b.substr(0,2)){case'js':case'es':return Prism.languages.javascript;case'c':return Prism.languages.clike;default:return Prism.languages.markup;}}})})();</script>
+</head><body></body></html>

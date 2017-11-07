@@ -24,8 +24,7 @@ coverage
 .grunt
 
 # Bower dependency directory (https://bower.io/)
-bower_components
-!build/demo/bower_components
+/bower_components
 
 # node-waf configuration
 .lock-wscript
@@ -35,9 +34,9 @@ build/Release
 
 # Dependency directories
 jspm_packages/
-node_modules/*
-node_modules/monaco-editor/min/vs
-!node_modules/monaco-editor/min/vs/*
+/node_modules/*
+/node_modules/monaco-editor/min/vs
+!/node_modules/monaco-editor/min/vs/*
 
 # Typescript v1 declaration files
 typings/

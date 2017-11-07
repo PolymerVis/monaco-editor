@@ -1,1 +1,18 @@
-<html><head><link rel="import" href="../../bower_components/polymer/polymer-element.html"><link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html"></head><body><dom-module id="monaco-editor-demo"><template><style>:host{font-family:monospace;display:block;padding:0px;margin:0px;--paper-tabs-selection-bar-color:#E91E63;}iframe{box-sizing:border-box;padding:0px;margin:0px;width:100vw;height:calc(100vh - 52px);overflow-x:hidden;}</style><paper-tabs selected="{{selected}}" attr-for-selected="src"><paper-tab src="index">monaco-editor demo</paper-tab><paper-tab src="monaco-schemas">monaco-schemas demo</paper-tab><paper-tab src="vega-editor">Vega-Lite editor</paper-tab></paper-tabs><iframe src="[[activeUrl]]" frameborder="0"></iframe></template><script>var MonacoEditorDemo=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,[{key:'_computeActiveUrl',value:function(a){return this.resolveUrl('../demo/'+a+'.html')}}],[{key:'is',get:function(){return'monaco-editor-demo'}},{key:'properties',get:function(){return{selected:{type:String,value:'index'},activeUrl:{type:String,computed:'_computeActiveUrl(selected)'}}}}]),b}(Polymer.Element);window.customElements.define(MonacoEditorDemo.is,MonacoEditorDemo);</script></dom-module></body></html>
+<html><head><link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+
+</head><body><dom-module id="monaco-editor-demo">
+  <template>
+    <style>:host{font-family:monospace;display:block;padding:0px;margin:0px;--paper-tabs-selection-bar-color:#E91E63;}iframe{box-sizing:border-box;padding:0px;margin:0px;width:100vw;height:calc(100vh - 52px);overflow-x:hidden;}</style>
+    <paper-tabs selected="{{selected}}" attr-for-selected="src">
+      <paper-tab src="index">monaco-editor demo</paper-tab>
+      <paper-tab src="monaco-schemas">monaco-schemas demo</paper-tab>
+      <paper-tab src="vega-editor">Vega-Lite editor</paper-tab>
+    </paper-tabs>
+    <iframe src="[[activeUrl]]" frameborder="0"></iframe>
+  </template>
+
+  <script>class MonacoEditorDemo extends Polymer.Element{static get is(){return'monaco-editor-demo'}static get properties(){return{selected:{type:String,value:'index'},activeUrl:{type:String,computed:'_computeActiveUrl(selected)'}}}_computeActiveUrl(a){return this.resolveUrl(`../demo/${a}.html`)}}window.customElements.define(MonacoEditorDemo.is,MonacoEditorDemo);</script>
+</dom-module>
+</body></html>

@@ -1,1 +1,12 @@
-<html><head><link rel="import" href="boot.html"><script>(function(){'use strict';function a(){e=!0,requestAnimationFrame(function(){e=!1,b(f),setTimeout(function(){c(g)})})}function b(a){for(;a.length;)d(a.shift())}function c(a){for(var b=0,c=a.length;b<c;b++)d(a.shift())}function d(a){var b=a[0],c=a[1],d=a[2];try{c.apply(b,d)}catch(a){setTimeout(function(){throw a})}}var e=!1,f=[],g=[];Polymer.RenderStatus={beforeNextRender:function(b,c,d){e||a(),f.push([b,c,d])},afterNextRender:function(b,c,d){e||a(),g.push([b,c,d])},flush:function(){for(;f.length||g.length;)b(f),b(g);e=!1}}})();</script></head><body></body></html>
+<!--
+@license
+Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="boot.html">
+
+<script>(function(){'use strict';function a(){e=!0,requestAnimationFrame(function(){e=!1,b(f),setTimeout(function(){c(g)})})}function b(a){for(;a.length;)d(a.shift())}function c(a){for(let b=0,c=a.length;b<c;b++)d(a.shift())}function d(a){const b=a[0],c=a[1],d=a[2];try{c.apply(b,d)}catch(a){setTimeout(()=>{throw a})}}let e=!1,f=[],g=[];Polymer.RenderStatus={beforeNextRender:function(b,c,d){e||a(),f.push([b,c,d])},afterNextRender:function(b,c,d){e||a(),g.push([b,c,d])},flush:function(){for(;f.length||g.length;)b(f),b(g);e=!1}}})();</script>
+</head><body></body></html>
