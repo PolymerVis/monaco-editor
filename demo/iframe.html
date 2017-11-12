@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+<title>monaco-editor demo</title>
+
+<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+<link rel="import" href="../../polymer/lib/elements/dom-bind.html">
+<link rel="import" href="../../polymer/lib/utils/import-href.html">
+<link rel="import" href="../../polymer/lib/elements/custom-style.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="./wrapper-view.html">
+
+<custom-style>
+  <style is="custom-style" include="iron-flex iron-flex-alignment">
+    body {
+      padding: 5px;
+      margin: 0px;
+      font-family: verdana;
+    }
+
+    monaco-editor {
+      height: 90vh;
+      width: 100%;
+      min-width: 520px;
+      min-height: 400px;
+    }
+
+    .error {
+      font-size: 0.7em;
+      color: #E91E63;
+    }
+
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      margin: 3px;
+      padding: 5px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+    }
+    button.off {
+      background-color: #888;
+    }
+
+  </style>
+</custom-style>
+</head>
+
+<body>
+
+<dom-bind id="demo">
+  <template>
+    <wrapper-view></wrapper-view>
+  </template>
+</dom-bind>
+
+<script>
+</script>
+
+</body>
+</html>

@@ -2,7 +2,10 @@
 <link rel="import" href="../polymer/lib/utils/debounce.html">
 <link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html">
 
+<link rel="import" href="../polymer-vis/polymer-vis.html">
+
 <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+<script src="./monaco-editor-iframe.js"></script>
 
 <dom-module id="monaco-editor">
 <template>
@@ -15,13 +18,22 @@
     #hidden {
       display: none;
     }
+    iframe#monaco-iframe {
+      width: 100%;
+      height: 100%;
+      outline: none;
+      overflow: visible;
+      box-sizing: border-box;
+      margin: 0px;
+      padding: 0px;
+      border-width: 0px;
+    }
   </style>
   <div id="hidden">
     <slot id="codes" name="monaco-value"></slot>
   </div>
   <slot></slot>
 </template>
-
 <script>
 /**
  * # `monaco-editor`
@@ -193,8 +205,7 @@ class MonacoEditor extends Polymer.Element {
        */
       value: {
         type: String,
-        notify: true,
-        observer: '_valueChanged'
+        notify: true
       },
       /**
        * Theme to use for the editor. The out-of-the-box options are `vs`,
@@ -355,7 +366,7 @@ class MonacoEditor extends Polymer.Element {
         value: false
       },
       /**
-       * monaca.editor instance. For a full list for the APIs, visit
+       * monaco.editor instance. For a full list for the APIs, visit
        * their [documentation](https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html).
        * @type {monaco.editor}
        */
@@ -365,7 +376,7 @@ class MonacoEditor extends Polymer.Element {
         notify: true
       },
       /**
-       * Monaca namespace. For a full list for the APIs, visit
+       * Monaco namespace. For a full list for the APIs, visit
        * their [documentation](https://microsoft.github.io/monaco-editor/api/index.html).
        * @type {monaco}
        */
@@ -411,6 +422,7 @@ class MonacoEditor extends Polymer.Element {
   static get observers() {
     return [
       '_init(monaco)',
+      '_valueChanged(value,editor)',
       'setTheme(theme,monaco)',
       'setModelLanguage(language,monaco)',
       '_updateDiagnosticsOptions(monaco,language,jsonValidate,jsonAllowComments,jsonSchemas)',
@@ -420,24 +432,39 @@ class MonacoEditor extends Polymer.Element {
 
   ready() {
     super.ready();
-    require.config({
-      paths: {vs: this.libPath }
-    });
-    require(['vs/editor/editor.main'], () => {
-      this._setMonaco(monaco);
-    });
   }
 
   connectedCallback() {
     super.connectedCallback();
+
     var text = this.$.codes
       .assignedNodes()
       .map(e => e.textContent)
       .join('\n');
     if (text.length > 0) this.set('value', text);
+
+    if (this._isInShadowRoot(this)) {
+      return this._initIFrame();
+    }
+
+    require.config({
+      paths: {vs: this.libPath}
+    });
+
+    if (!window.monaco) {
+      require(['vs/editor/editor.main'], () => {
+        this._setMonaco(monaco);
+      });
+    }
+
     this._syncSchemaListener = this._syncSchema.bind(this);
     this.addEventListener('mouseenter', this._syncSchemaListener);
-    this._init();
+
+    // load and insert style into shadowRoot
+    /* PolymerVis.insertCssIntoShadowRoot(
+      `${this.libPath}/editor/editor.main.css`,
+      this
+    ); */
   }
 
   disconnectedCallback() {
@@ -451,7 +478,7 @@ class MonacoEditor extends Polymer.Element {
       this._disposables = [];
     }
     if (this._syncSchemaListener) {
-      this.removeEventListener(this._syncSchemaListener);
+      this.removeEventListener('mouseenter', this._syncSchemaListener);
     }
   }
 
@@ -479,6 +506,7 @@ class MonacoEditor extends Polymer.Element {
   }
 
   _valueChanged(value) {
+    if (!this.editor) return;
     if (this._syncValue) {
       return this.set('_syncValue', false);
     }
@@ -520,7 +548,7 @@ class MonacoEditor extends Polymer.Element {
   _updateDiagnosticsOptions() {
     if (!this.monaco) return;
     if (this.language === 'json') {
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      this.monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: this.jsonValidate,
         allowComments: this.jsonAllowComments,
         schemas: this.jsonSchemas
@@ -546,8 +574,42 @@ class MonacoEditor extends Polymer.Element {
     }
   }
 
+  _initIFrame() {
+    window.addEventListener('message', ({data}) => {
+      if (data.event === 'value-changed') {
+        this.set('_syncValue', true);
+        this.set('value', data.details);
+      }
+      if (data.action === 'editor-focused') {
+        this._syncSchema();
+      }
+    });
+
+    var iframe = new PolymerVis.monaco.MonacoIFrame(this.shadowRoot);
+    iframe.resize(this.clientWidth, this.clientHeight);
+    iframe.init(
+      this.libPath,
+      this._getOptions({value: this.value, language: this.language})
+    );
+    this._setEditor(iframe.editor);
+    this._setMonaco(iframe.monaco);
+    this.dispatchEvent(new CustomEvent('monaco-ready'));
+  }
+
+  _isInShadowRoot(node) {
+    while (node) {
+      if (node.toString() === '[object ShadowRoot]') {
+        return true;
+      }
+      node = node.parentNode;
+    }
+    return false;
+  }
+
   _init() {
     if (!this.monaco || this.editor) return;
+
+
     var opts = {
       value: this.value,
       language: this.language

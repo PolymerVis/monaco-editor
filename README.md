@@ -62,6 +62,15 @@ You can still view the demo at the [`monaco-editor` Github page](https://Polymer
 ## Very important note on external dependencies when building/bundling your app
 `monaco-editor` loads most of the required modules dynamically, hence `polymer-build` will not be able to properly detect these external modules. You will need to manually add `bower_components/monaco-editor/node_modules/monaco-editor/min/vs/**/*` into the `extraDependencies` to ensure these modules are exported together.
 
+## Important note on "hack" to allow Monaco Editor to work inside a custom element
+Monaco Editor only works properly in the light DOM and there are a few functions that access or check on `document.body`. The selection is also dependent on `document.caretPositionFromPoint` or its variant. Hence, there are only a few solutions:
+
+- make a pull request and update the source code: but the source code seems to reside somewhere in [Visual Studio Code repo](https://github.com/Microsoft/vscode) instead of a proper `monaco-editor-core` repo,
+- attach the element (which Monaco Editor will be anchoring to) in the `document.body`, and try to sync the position, size, and style with the `monaco-editor` custom element,
+- create an iFrame and attach the iFrame to the `monaco-editor` custom element's shadowRoot.
+
+The current approach now is, if the parent node of the `monaco-editor` is in the light DOM (it is not inside another custom element), the anchoring element will be insert as a slot (so that it remains in the light DOM), otherwise an iFrame will be created. In this case, a `monaco`, and `editor` proxy object will be created so that the some functions will be proxied into the iFrame.
+
 ## Disclaimers
 PolymerVis is a personal project and is NOT in any way affliated with Microsoft, Polymer or Google.
 
