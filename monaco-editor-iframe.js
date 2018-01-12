@@ -33,6 +33,13 @@
             args: [null, language]
           });
         },
+        layout: () => {
+          this.postMessage({
+            path: ['monaco', 'editor'],
+            event: 'layout',
+            args: [null]
+          });
+        },
         setTheme: theme => {
           this.postMessage({
             path: ['monaco', 'editor'],
@@ -139,7 +146,7 @@
       return `
             var proxy = {};
             var queue = [];
-
+            
             require.config({
               paths: {vs: "${libPath}"}
             });
@@ -158,7 +165,17 @@
               queue.forEach(e => handler(e));
               queue = [];
               parent.postMessage({ready: true}, parent.document.location.href);
+              resizeHandler();
             });
+
+            var resizeHandler = ()=> {
+              if(proxy.editor) {
+                var clientRects = document.body.getClientRects()[0]
+                proxy.editor.layout({width : clientRects.width, height: clientRects.height})
+              }
+            };
+            
+            window.addEventListener('resize', resizeHandler);
 
             window.addEventListener('message', handler);
 
@@ -172,6 +189,9 @@
               if (event === 'setValue') {
                 proxy.editor.getModel().setValue(args[0]);
                 return;
+              }
+              if (event === 'layout') {
+                resizeHandler();
               }
               if (event === 'setModelLanguage') {
                 args[0] = proxy.editor.getModel();
