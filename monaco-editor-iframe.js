@@ -2,8 +2,9 @@
   PolymerVis.monaco = PolymerVis.monaco || {};
 
   class MonacoProxy {
-    constructor(iframe) {
+    constructor(iframe, editorReference) {
       this._iframe_ = iframe;
+      this._editorReference_ = editorReference;
       this.languages.json.jsonDefaults.setDiagnosticsOptions;
     }
     get languages() {
@@ -22,6 +23,7 @@
       };
     }
     postMessage(msg) {
+      msg.editorReference = this._editorReference_;
       this._iframe_.contentWindow.postMessage(msg, document.location.href);
     }
     get editor() {
@@ -52,11 +54,13 @@
   }
 
   class EditorProxy {
-    constructor(iframe) {
+    constructor(iframe, editorReference) {
       this._iframe_ = iframe;
+      this._editorReference_ = editorReference;
     }
 
     postMessage(msg) {
+      msg.editorReference = this._editorReference_;
       this._iframe_.contentWindow.postMessage(msg, document.location.href);
     }
 
@@ -133,17 +137,39 @@
       this.document.head.appendChild(ele);
     }
 
+    insertStyle() {
+      var css = `#editor {
+        width: 100%;
+        height: 100%;
+      }
+      html,body {
+        margin : 0px;
+      }`;
+      var head = this.document.head;
+      var style = this.document.createElement('style');
+      style.type = 'text/css';
+      if (style.styleSheet){
+        style.styleSheet.cssText = css;
+      } else {
+        style.appendChild(this.document.createTextNode(css));
+      }
+      head.appendChild(style);
+    }
+
     init(libPath, opts) {
       this.insertScriptElement({
         src: `${libPath}/loader.js`,
         onload: () => {
           this.insertScriptElement({text: this.loaderOnLoad(libPath, opts)});
+          this.insertStyle();
         }
       });
     }
 
     loaderOnLoad(libPath, opts = {}) {
       return `
+            var editorReference = "${opts.editorReference}"
+            console.log(editorReference)
             var proxy = {};
             var queue = [];
             
@@ -157,14 +183,14 @@
               proxy.editor = monaco.editor.create(div, ${JSON.stringify(opts)});
               proxy.model = proxy.editor.getModel();
               proxy.model.onDidChangeContent(() => {
-                parent.postMessage({event: 'value-changed', details: proxy.model.getValue()}, parent.document.location.href);
+                parent.postMessage({editorReference: editorReference, event: 'value-changed', details: proxy.model.getValue()}, parent.document.location.href);
               });
               proxy.editor.onDidFocusEditor(() => {
-                parent.postMessage({event: 'editor-focused'}, parent.document.location.href);
+                parent.postMessage({editorReference: editorReference, event: 'editor-focused'}, parent.document.location.href);
               });
               queue.forEach(e => handler(e));
               queue = [];
-              parent.postMessage({ready: true}, parent.document.location.href);
+              parent.postMessage({editorReference: editorReference, ready: true}, parent.document.location.href);
               resizeHandler();
             });
 

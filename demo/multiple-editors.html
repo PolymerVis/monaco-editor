@@ -1,0 +1,57 @@
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="../monaco-editor.html">
+<link rel="import" href="../monaco-schemas.html">
+<dom-module id="multiple-editors">
+    <template>
+      <monaco-editor
+          folding
+          minimap
+          name="editor"
+          theme="vs-dark"
+          language="javascript"
+          value="{{_content1}}"></monaco-editor>
+      <monaco-editor
+          folding
+          minimap
+          name="editor"
+          theme="vs-dark"
+          language="javascript"
+          value="{{_content2}}"></monaco-editor>
+    </template>
+
+    <script>
+        class MultipleEditors extends Polymer.Element {
+
+            static get is() {
+                return 'multiple-editors';
+            }
+
+            static get properties() {
+                return {
+                    _content1: {
+                        type: String,
+                        value: 'Hello World',
+                        observer: '_onContent1Changed'
+                    },
+
+                    _content2: {
+                        type: String,
+                        value: 'Hello Moon',
+                        observer: '_onContent2Changed'
+                    }
+                }
+            }
+
+            _onContent1Changed() {
+                console.log(`Content 1 changed: ${this._content1}`);
+            }
+
+            _onContent2Changed() {
+                console.log(`Content 2 changed: ${this._content2}`);
+            }
+        }
+
+        customElements.define(MultipleEditors.is, MultipleEditors);
+    </script>
+  </dom-module>
