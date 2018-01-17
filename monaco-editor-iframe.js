@@ -48,10 +48,33 @@
             event: 'setTheme',
             args: [theme]
           });
+        },
+        highlightLine: (debugInfo) => {
+          if(debugInfo){
+              this.postMessage({
+                path: ['monaco', 'editor'],
+                event: 'highlightLine',
+                args: [debugInfo]
+              })
+          }
+        },
+        removeHighlights: () => {
+          this.postMessage({
+            path: ['monaco', 'editor'],
+            event: 'removeHighlights',
+            args: []
+        })
+      },
+      addTypeScriptLibs: (libs) => {
+          this.postMessage({
+            path: ['monaco', 'editor'],
+            event: 'addLibs',
+            args: [libs]
+          })
         }
       };
-    }
   }
+}
 
   class EditorProxy {
     constructor(iframe, editorReference) {
@@ -142,6 +165,12 @@
         width: 100%;
         height: 100%;
       }
+      .debug-red {
+        background : red;
+      }
+      .debug-green {
+        background : green;
+      }
       html,body {
         margin : 0px;
       }`;
@@ -169,7 +198,6 @@
     loaderOnLoad(libPath, opts = {}) {
       return `
             var editorReference = "${opts.editorReference}"
-            console.log(editorReference)
             var proxy = {};
             var queue = [];
             
@@ -181,6 +209,15 @@
               proxy.monaco = monaco;
               var div = document.querySelector('#editor')
               proxy.editor = monaco.editor.create(div, ${JSON.stringify(opts)});
+              monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                  target: monaco.languages.typescript.ScriptTarget.ES2017,
+                  allowNonTsExtensions: true,
+                  noLib: true
+              });
+              // [
+              //   {url : 'https://cdn.rawgit.com/Microsoft/TypeScript/64b3086f/lib/lib.es6.d.ts', name : 'es6.d.ts'},
+              //   {url : 'https://cdn.rawgit.com/anandanand84/technicalindicators/235ff767/declarations/generated.d.ts', name : 'Indicators.d.ts', convert : true}
+              // ]
               proxy.model = proxy.editor.getModel();
               proxy.model.onDidChangeContent(() => {
                 parent.postMessage({editorReference: editorReference, event: 'value-changed', details: proxy.model.getValue()}, parent.document.location.href);
@@ -193,6 +230,17 @@
               parent.postMessage({editorReference: editorReference, ready: true}, parent.document.location.href);
               resizeHandler();
             });
+
+            async function loadLibs(libs) {
+                for(let lib of libs) {
+                    var response = await fetch(lib.url)
+                    var types = await response.text();
+                    if(lib.convert)
+                        types = types.replace(new RegExp('default ', 'g'), '').split('export').join('declare');
+                    monaco.languages.typescript.typescriptDefaults.addExtraLib(types, lib.name);
+                    console.log('Added lib ', lib.name);
+                }
+            }
 
             var resizeHandler = ()=> {
               if(proxy.editor) {
@@ -215,6 +263,32 @@
               if (event === 'setValue') {
                 proxy.editor.getModel().setValue(args[0]);
                 return;
+              }
+              if(event === 'highlightLine') {
+                proxy.editor.decorationList = [];
+                var debugInfo = args[0];
+                Object.keys(debugInfo).forEach(function (line) {
+                  var lineNo = line - 2;
+                  var status = debugInfo[line] === 0 ? 'debug-red' : 'debug-green';
+                  proxy.editor.decorationList.push({
+                      range: new monaco.Range(lineNo,1,lineNo,1),
+                      options: {
+                        isWholeLine: true,
+                        className: status,
+                      }
+                    });
+                })
+                proxy.editor.lastDecorations = proxy.editor.deltaDecorations([], proxy.editor.decorationList);;
+              }
+              if(event === 'removeHighlights') {
+                if(proxy.editor.lastDecorations && proxy.editor.lastDecorations.length > 1) {
+                  proxy.editor.lastDecorations = proxy.editor.deltaDecorations(proxy.editor.lastDecorations, [{ range: new monaco.Range(1,1,1,1), options : { } }]); 
+                }
+              }
+              if(event === 'addLibs') {
+                console.log('loading libs ', args[0])
+                var libs = args[0];
+                loadLibs(libs);
               }
               if (event === 'layout') {
                 resizeHandler();

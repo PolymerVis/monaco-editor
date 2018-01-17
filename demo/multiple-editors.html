@@ -7,16 +7,18 @@
       <monaco-editor
           folding
           minimap
+          id="monacoeditor1"
           name="editor"
           theme="vs-dark"
-          language="javascript"
+          language="typescript"
           value="{{_content1}}"></monaco-editor>
       <monaco-editor
+          id="monacoeditor2"
           folding
           minimap
           name="editor"
           theme="vs-dark"
-          language="javascript"
+          language="typescript"
           value="{{_content2}}"></monaco-editor>
     </template>
 
@@ -41,6 +43,20 @@
                         observer: '_onContent2Changed'
                     }
                 }
+            }
+
+            /**
+              * Called every time the element is inserted into the DOM. Useful for 
+              * running setup code, such as fetching resources or rendering.
+              * Generally, you should try to delay work until this time.
+              */
+            connectedCallback() {
+                super.connectedCallback();
+                setTimeout(()=> {
+                    this.$.monacoeditor2.monaco.editor.addTypeScriptLibs([
+                        {url : 'https://cdn.rawgit.com/Microsoft/TypeScript/64b3086f/lib/lib.es6.d.ts', name : 'es6.d.ts'}
+                    ])
+                }, 100)
             }
 
             _onContent1Changed() {
