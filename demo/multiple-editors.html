@@ -1,0 +1,73 @@
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="../monaco-editor.html">
+<link rel="import" href="../monaco-schemas.html">
+<dom-module id="multiple-editors">
+    <template>
+      <monaco-editor
+          folding
+          minimap
+          id="monacoeditor1"
+          name="editor"
+          theme="vs-dark"
+          language="typescript"
+          value="{{_content1}}"></monaco-editor>
+      <monaco-editor
+          id="monacoeditor2"
+          folding
+          minimap
+          name="editor"
+          theme="vs-dark"
+          language="typescript"
+          value="{{_content2}}"></monaco-editor>
+    </template>
+
+    <script>
+        class MultipleEditors extends Polymer.Element {
+
+            static get is() {
+                return 'multiple-editors';
+            }
+
+            static get properties() {
+                return {
+                    _content1: {
+                        type: String,
+                        value: 'Hello World',
+                        observer: '_onContent1Changed'
+                    },
+
+                    _content2: {
+                        type: String,
+                        value: 'Hello Moon',
+                        observer: '_onContent2Changed'
+                    }
+                }
+            }
+
+            /**
+              * Called every time the element is inserted into the DOM. Useful for 
+              * running setup code, such as fetching resources or rendering.
+              * Generally, you should try to delay work until this time.
+              */
+            connectedCallback() {
+                super.connectedCallback();
+                setTimeout(()=> {
+                    this.$.monacoeditor2.monaco.editor.addTypeScriptLibs([
+                        {url : 'https://cdn.rawgit.com/Microsoft/TypeScript/64b3086f/lib/lib.es6.d.ts', name : 'es6.d.ts'}
+                    ])
+                }, 100)
+            }
+
+            _onContent1Changed() {
+                console.log(`Content 1 changed: ${this._content1}`);
+            }
+
+            _onContent2Changed() {
+                console.log(`Content 2 changed: ${this._content2}`);
+            }
+        }
+
+        customElements.define(MultipleEditors.is, MultipleEditors);
+    </script>
+  </dom-module>

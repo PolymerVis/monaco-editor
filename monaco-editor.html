@@ -35,6 +35,7 @@
   <slot></slot>
 </template>
 <script>
+var editorCounter = 1;
 /**
  * # `monaco-editor`
  * `monaco-editor` is a Polymer 2.0 element for [Monaco Editor](https://microsoft.github.io/monaco-editor/), a browser-based code editor which also powers Visual Studio Code.
@@ -271,6 +272,19 @@ class MonacoEditor extends Polymer.Element {
       snippetSuggestions: {
         type: String,
         value: 'bottom'
+      },
+      /**
+       * Editor reference id, which is used to synchronize editor with the iframe which is necessary for multiple editors.
+       * @type {String}
+       */
+       editorReference: {
+        type: String,
+        value: function() {
+          editorCounter = editorCounter + 1;
+          return 'editor'+editorCounter;
+        },
+        reflectToAttribute: true,
+        readonly: true
       },
       /**
        * Configurations for the editor. For a full list of parameters, visit
@@ -534,7 +548,8 @@ class MonacoEditor extends Polymer.Element {
         renderLineHighlight: this.renderLineHighlight,
         minimap: {enabled: this.minimap},
         readOnly: this.readOnly,
-        autoIndent: this.autoIndent
+        autoIndent: this.autoIndent,
+        theme : this.theme
       },
       this.options,
       opt
@@ -576,6 +591,7 @@ class MonacoEditor extends Polymer.Element {
 
   _initIFrame() {
     window.addEventListener('message', ({data}) => {
+      if(data.editorReference !== this.editorReference) return;
       if (data.event === 'value-changed') {
         this.set('_syncValue', true);
         this.set('value', data.details);
@@ -589,7 +605,7 @@ class MonacoEditor extends Polymer.Element {
     iframe.resize(this.clientWidth, this.clientHeight);
     iframe.init(
       this.libPath,
-      this._getOptions({value: this.value, language: this.language})
+      this._getOptions({value: this.value, language: this.language, editorReference : this.editorReference})
     );
     this._setEditor(iframe.editor);
     this._setMonaco(iframe.monaco);
