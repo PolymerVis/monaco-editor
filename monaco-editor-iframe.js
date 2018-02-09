@@ -24,6 +24,9 @@
           if (provider.provideCompletionItems) {
             provider.provideCompletionItems = provider.provideCompletionItems.toString();
           }
+          if (provider.resolveCompletionItem) {
+              provider.resolveCompletionItem = provider.resolveCompletionItem.toString();
+          }
           this.postMessage({
             path: ['monaco', 'languages'],
             event: 'registerCompletionItemProvider',
@@ -319,6 +322,7 @@
               if (event === 'registerCompletionItemProvider') {
                 if (args[1].provideCompletionItems) {
                   args[1].provideCompletionItems = eval(args[1].provideCompletionItems);
+                  args[1].resolveCompletionItem = eval(args[1].resolveCompletionItem);
                 }
               }
               if (event === 'registerSignatureHelpProvider') {
