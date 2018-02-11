@@ -19,6 +19,29 @@
               });
             }
           }
+        },
+        registerCompletionItemProvider: (languageId, provider) => {
+          if (provider.provideCompletionItems) {
+            provider.provideCompletionItems = provider.provideCompletionItems.toString();
+          }
+          if (provider.resolveCompletionItem) {
+              provider.resolveCompletionItem = provider.resolveCompletionItem.toString();
+          }
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'registerCompletionItemProvider',
+            args: [languageId, provider]
+          });
+        },
+        registerSignatureHelpProvider: (languageId, provider) => {
+          if (provider.provideSignatureHelp) {
+            provider.provideSignatureHelp = provider.provideSignatureHelp.toString();
+          }
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'registerSignatureHelpProvider',
+            args: [languageId, provider]
+          });
         }
       };
     }
@@ -295,6 +318,17 @@
               }
               if (event === 'setModelLanguage') {
                 args[0] = proxy.editor.getModel();
+              }
+              if (event === 'registerCompletionItemProvider') {
+                if (args[1].provideCompletionItems) {
+                  args[1].provideCompletionItems = eval(args[1].provideCompletionItems);
+                  args[1].resolveCompletionItem = eval(args[1].resolveCompletionItem);
+                }
+              }
+              if (event === 'registerSignatureHelpProvider') {
+                if (args[1].provideSignatureHelp) {
+                  args[1].provideSignatureHelp = eval(args[1].provideSignatureHelp);
+                }
               }
               try {
                 let cmd = proxy;
