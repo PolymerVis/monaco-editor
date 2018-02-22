@@ -599,6 +599,10 @@ class MonacoEditor extends Polymer.Element {
       if (data.action === 'editor-focused') {
         this._syncSchema();
       }
+
+      if (data.event === 'editor-message-handler-ready') {
+          this._valueChanged(this.value);
+      };
     });
 
     var iframe = new PolymerVis.monaco.MonacoIFrame(this.shadowRoot);

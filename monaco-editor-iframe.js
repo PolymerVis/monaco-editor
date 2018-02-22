@@ -275,6 +275,7 @@
             window.addEventListener('resize', resizeHandler);
 
             window.addEventListener('message', handler);
+            parent.postMessage({editorReference: editorReference, event: 'editor-message-handler-ready'}, parent.document.location.href);
 
             function handler(e) {
               var {path, event, args} = e.data;
