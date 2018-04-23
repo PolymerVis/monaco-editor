@@ -593,8 +593,12 @@ class MonacoEditor extends Polymer.Element {
     window.addEventListener('message', ({data}) => {
       if(data.editorReference !== this.editorReference) return;
       if (data.event === 'value-changed') {
-        this.set('_syncValue', true);
-        this.set('value', data.details);
+        // Only sync if the values are different. Otherwise the valueChanged observer won't trigger and
+        // the next change will be used to reset _syncValue instead of setting the desired value
+        if (this.value !== data.details) {
+          this.set('_syncValue', true);
+          this.set('value', data.details);
+        }
       }
       if (data.action === 'editor-focused') {
         this._syncSchema();
@@ -649,8 +653,12 @@ class MonacoEditor extends Polymer.Element {
     var model = editor.getModel();
     model.onDidChangeContent(() => {
       if (!this._incomingValue) {
-        this.set('_syncValue', true);
-        this.set('value', model.getValue());
+        // Only sync if the values are different. Otherwise the valueChanged observer won't trigger and
+        // the next change will be used to reset _syncValue instead of setting the desired value
+        if (this.value !== model.getValue()) {
+          this.set('_syncValue', true);
+          this.set('value', model.getValue());
+        }
       } else {
         this.set('_incomingValue', false);
       }
