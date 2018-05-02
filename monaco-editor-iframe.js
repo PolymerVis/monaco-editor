@@ -57,7 +57,7 @@
       }
     }
     setMessageFlowActive(value) {
-      this._messageFlowActive = value;
+      this._messageFlowActive_ = value;
       if (value) {
         for (let msg of this._delayedMessages_) {
           this._iframe_.contentWindow.postMessage(msg, document.location.href);
@@ -134,7 +134,7 @@
     }
 
     setMessageFlowActive(value) {
-      this._messageFlowActive = value;
+      this._messageFlowActive_ = value;
       if (value) {
         for (let msg of this._delayedMessages_) {
           this._iframe_.contentWindow.postMessage(msg, document.location.href);
