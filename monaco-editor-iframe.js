@@ -42,6 +42,16 @@
             event: 'registerSignatureHelpProvider',
             args: [languageId, provider]
           });
+        },
+        registerHoverProvider: (languageId, provider) => {
+          if (provider.provideHover) {
+            provider.provideHover = provider.provideHover.toString();
+          }
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'registerHoverProvider',
+            args: [languageId, provider]
+          });
         }
       };
     }
@@ -329,6 +339,11 @@
               if (event === 'registerSignatureHelpProvider') {
                 if (args[1].provideSignatureHelp) {
                   args[1].provideSignatureHelp = eval(args[1].provideSignatureHelp);
+                }
+              }
+              if (event === 'registerHoverProvider') {
+                if (args[1].provideHover) {
+                  args[1].provideHover = eval(args[1].provideHover);
                 }
               }
               try {
