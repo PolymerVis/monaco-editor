@@ -5,6 +5,8 @@
     constructor(iframe, editorReference) {
       this._iframe_ = iframe;
       this._editorReference_ = editorReference;
+      this._messageFlowActive_ = false;
+      this._delayedMessages_ = [];
       this.languages.json.jsonDefaults.setDiagnosticsOptions;
     }
     get languages() {
@@ -47,7 +49,21 @@
     }
     postMessage(msg) {
       msg.editorReference = this._editorReference_;
-      this._iframe_.contentWindow.postMessage(msg, document.location.href);
+      if (this._messageFlowActive_) {
+        this._iframe_.contentWindow.postMessage(msg, document.location.href);
+      }
+      else {
+        this._delayedMessages_.push(msg);
+      }
+    }
+    setMessageFlowActive(value) {
+      this._messageFlowActive = value;
+      if (value) {
+        for (let msg of this._delayedMessages_) {
+          this._iframe_.contentWindow.postMessage(msg, document.location.href);
+        }
+        this._delayedMessages_ = [];
+      }
     }
     get editor() {
       return {
@@ -103,11 +119,28 @@
     constructor(iframe, editorReference) {
       this._iframe_ = iframe;
       this._editorReference_ = editorReference;
+      this._messageFlowActive_ = false;
+      this._delayedMessages_ = [];
     }
 
     postMessage(msg) {
       msg.editorReference = this._editorReference_;
-      this._iframe_.contentWindow.postMessage(msg, document.location.href);
+      if (this._messageFlowActive_) {
+        this._iframe_.contentWindow.postMessage(msg, document.location.href);
+      }
+      else {
+        this._delayedMessages_.push(msg);
+      }
+    }
+
+    setMessageFlowActive(value) {
+      this._messageFlowActive = value;
+      if (value) {
+        for (let msg of this._delayedMessages_) {
+          this._iframe_.contentWindow.postMessage(msg, document.location.href);
+        }
+        this._delayedMessages_ = [];
+      }
     }
 
     updateOptions(opts) {
@@ -170,6 +203,10 @@
     }
     get proxy() {
       return this._proxy_;
+    }
+    activateMessageFlow() {
+      this.editor.setMessageFlowActive(true);
+      this.monaco.setMessageFlowActive(true);
     }
     resize(w, h) {
       this.node.style.height = h;
