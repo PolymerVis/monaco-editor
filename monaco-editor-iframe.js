@@ -42,6 +42,23 @@
             event: 'registerSignatureHelpProvider',
             args: [languageId, provider]
           });
+        },
+        registerHoverProvider: (languageId, provider) => {
+          if (provider.provideHover) {
+            provider.provideHover = provider.provideHover.toString();
+          }
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'registerHoverProvider',
+            args: [languageId, provider]
+          });
+        },
+        clearHoverProviders: () => {
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'clearHoverProviders',
+            args: []
+          });
         }
       };
     }
@@ -223,6 +240,7 @@
             var editorReference = "${opts.editorReference}"
             var proxy = {};
             var queue = [];
+            var hoverProviders = [];
             
             require.config({
               paths: {vs: "${libPath}"}
@@ -288,6 +306,12 @@
                 proxy.editor.getModel().setValue(args[0]);
                 return;
               }
+              if (event === 'clearHoverProviders') {
+                for (let hoverProvider of hoverProviders) {
+                  hoverProvider.dispose();
+                }
+                return;
+              }
               if(event === 'highlightLine') {
                 proxy.editor.decorationList = [];
                 var debugInfo = args[0];
@@ -331,10 +355,18 @@
                   args[1].provideSignatureHelp = eval(args[1].provideSignatureHelp);
                 }
               }
+              if (event === 'registerHoverProvider') {
+                if (args[1].provideHover) {
+                  args[1].provideHover = eval(args[1].provideHover);
+                }
+              }
               try {
                 let cmd = proxy;
                 path.forEach(k => { cmd = cmd[k]; });
-                cmd[event](...args);
+                let disposable = cmd[event](...args);
+                if (event === 'registerHoverProvider') {
+                  hoverProviders.push(disposable);
+                }
               } catch (err) {
                 console.error(err);
               }
