@@ -52,6 +52,13 @@
             event: 'registerHoverProvider',
             args: [languageId, provider]
           });
+        },
+        clearHoverProviders: () => {
+          this.postMessage({
+            path: ['monaco', 'languages'],
+            event: 'clearHoverProviders',
+            args: []
+          });
         }
       };
     }
@@ -233,6 +240,7 @@
             var editorReference = "${opts.editorReference}"
             var proxy = {};
             var queue = [];
+            var hoverProviders = [];
             
             require.config({
               paths: {vs: "${libPath}"}
@@ -298,6 +306,12 @@
                 proxy.editor.getModel().setValue(args[0]);
                 return;
               }
+              if (event === 'clearHoverProviders') {
+                for (let hoverProvider of hoverProviders) {
+                  hoverProvider.dispose();
+                }
+                return;
+              }
               if(event === 'highlightLine') {
                 proxy.editor.decorationList = [];
                 var debugInfo = args[0];
@@ -349,7 +363,10 @@
               try {
                 let cmd = proxy;
                 path.forEach(k => { cmd = cmd[k]; });
-                cmd[event](...args);
+                let disposable = cmd[event](...args);
+                if (event === 'registerHoverProvider') {
+                  hoverProviders.push(disposable);
+                }
               } catch (err) {
                 console.error(err);
               }
