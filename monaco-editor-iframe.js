@@ -118,6 +118,14 @@
       });
     }
 
+    trigger(source, handlerId, payload) {
+      this.postMessage({
+        path: ['editor'],
+        event: 'trigger',
+        args: [source, handlerId, payload]
+      });
+    }
+
     getModel() {
       return {
         setValue: value => {
