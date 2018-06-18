@@ -590,6 +590,7 @@ class MonacoEditor extends Polymer.Element {
   }
 
   _initIFrame() {
+      var iframe = new PolymerVis.monaco.MonacoIFrame(this.shadowRoot);
     window.addEventListener('message', ({data}) => {
       if(data.editorReference !== this.editorReference) return;
       if (data.event === 'value-changed') {
@@ -606,10 +607,10 @@ class MonacoEditor extends Polymer.Element {
 
       if (data.event === 'editor-message-handler-ready') {
           this._valueChanged(this.value);
+          iframe.activateMessageFlow();
       };
     });
 
-    var iframe = new PolymerVis.monaco.MonacoIFrame(this.shadowRoot);
     iframe.resize(this.clientWidth, this.clientHeight);
     iframe.init(
       this.libPath,
